@@ -103,7 +103,7 @@ jobs:
           echo "archs=$ARCHS" >> $GITHUB_OUTPUT
 
       - name: Create multi-arch manifest if both architectures succeed
-        if: ${{ steps.arch_info.outputs.archs == 'AMD64,ARM64' }}
+        id: multi_arch_or_single_tag
         run: |
           ARCHS="${{ steps.arch_info.outputs.archs }}"          
           if [[ "$ARCHS" == "AMD64,ARM64" ]]; then
