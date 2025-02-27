@@ -95,8 +95,9 @@ jobs:
         run: |
           pip install requests pyairtable
           echo "Updating metadata to AirTable looking at owner: $USER_NAME"
+          echo "$BRANCH"
           wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-          python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
+          python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch main --api-key $AIRTABLE_API_KEY
           rm airtableops.py
 
       - name: Sync metadata to S3 JSON

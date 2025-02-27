@@ -1,0 +1,140 @@
+name: Upload Ersilia Pack Dockerized Model
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
+
+jobs:
+  build-ersilia-pack-image:
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Checkout model repository
+        uses: actions/checkout@v4
+        with:
+          repository: ersilia-os/${{ inputs.repo_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          lfs: true
+
+      - run: git lfs pull
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+    
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+      # Install ersilia-pack, requests, and ersilia to test the built image with ersilia CLI
+      - name: Setup Python for Ersilia Pack
+        id: SetupPythonForErsiliaPack
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
+        with:
+          python-version: '3.12'
+
+      - name: Install ersilia-pack and generate the right Dockerfile
+        run: |
+          python -m pip install git+https://github.com/ersilia-os/ersilia-pack.git
+          python -m pip install requests
+          python -m pip install git+https://github.com/ersilia-os/ersilia.git
+          python .github/scripts/resolve_dockerfile.py ${{ inputs.repo_name }}
+
+      - name: Build and push AMD64
+        id: build_amd64
+        continue-on-error: true
+        uses: docker/build-push-action@v6.7.0
+        timeout-minutes: 60
+        with:
+          context: ../
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ersiliaos/${{ inputs.repo_name }}:dev-amd64
+
+      - name: Build and push ARM64
+        id: build_arm64
+        continue-on-error: true
+        uses: docker/build-push-action@v6.7.0
+        timeout-minutes: 60
+        with:
+          context: ../
+          platforms: linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ersiliaos/${{ inputs.repo_name }}:dev-arm64
+
+      - name: Set architecture success info
+        id: arch_info
+        run: |
+          ARCHS=""
+          AMD64_STATUS="${{ steps.build_amd64.outcome }}"
+          ARM64_STATUS="${{ steps.build_arm64.outcome }}"
+
+          if [[ "$AMD64_STATUS" == "success" && "$ARM64_STATUS" == "success" ]]; then
+            ARCHS="AMD64,ARM64"
+          elif [[ "$AMD64_STATUS" == "success" ]]; then
+            ARCHS="AMD64"
+          elif [[ "$ARM64_STATUS" == "success" ]]; then
+            ARCHS="ARM64"
+          fi
+          echo "Successful architectures: $ARCHS"
+          echo "$ARCHS" > arch.txt
+          echo "archs=$ARCHS" >> $GITHUB_OUTPUT
+
+      - name: Create multi-arch manifest if both architectures succeed
+        if: ${{ steps.arch_info.outputs.archs == 'AMD64,ARM64' }}
+        run: |
+          ARCHS="${{ steps.arch_info.outputs.archs }}"          
+          if [[ "$ARCHS" == "AMD64,ARM64" ]]; then
+            docker buildx imagetools create \
+              -t ersiliaos/${{ github.event.repository.name }}:dev \
+              ersiliaos/${{ github.event.repository.name }}:dev-amd64 \
+              ersiliaos/${{ github.event.repository.name }}:dev-arm64
+          elif [[ "$ARCHS" == "AMD64" ]]; then
+            docker pull ersiliaos/${{ github.event.repository.name }}:dev-amd64
+            docker tag ersiliaos/${{ github.event.repository.name }}:dev-amd64 ersiliaos/${{ github.event.repository.name }}:dev
+            docker push ersiliaos/${{ github.event.repository.name }}:dev
+          elif [[ "$ARCHS" == "ARM64" ]]; then
+            docker pull ersiliaos/${{ github.event.repository.name }}:dev-arm64
+            docker tag ersiliaos/${{ github.event.repository.name }}:dev-arm64 ersiliaos/${{ github.event.repository.name }}:dev
+            docker push ersiliaos/${{ github.event.repository.name }}:dev
+          else
+            echo "❌ Both builds failed. Exiting with error."
+            exit 1
+          fi
+
+      - name: Save pack method
+        id: save_pack_method
+        if: steps.multi_arch_or_single_tag.outcome == 'success'
+        run: |
+          echo "FastAPI" > pack_method.txt
+
+
+      - name: Upload metadata txt files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-info
+          path: |
+            arch.txt
+            pack_method.txt
