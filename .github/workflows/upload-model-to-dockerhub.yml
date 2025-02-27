@@ -1,0 +1,50 @@
+name: Upload Model to DockerHub
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
+
+
+jobs:
+  upload-ersilia-pack:
+    runs-on: ubuntu-latest
+    continue-on-error: true 
+    uses: ersilia-os/ersilia-model-workflows/.github/workflows/upload-ersilia-pack.yml@main
+    with:
+      repo_name: ${{ inputs.repo_name }}
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  upload-multi-stage-condapack:
+    needs: [upload-ersilia-pack]
+    if: ${{ needs.upload-ersilia-pack.result == 'failure' }}
+    runs-on: ubuntu-latest
+    uses: ersilia-os/ersilia-model-workflows/.github/workflows/upload-bentoml.yml@main
+    with:
+      repo_name: ${{ inputs.repo_name }}
+      version: multistage-condapack
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  upload-legacy-bentoml:
+    needs: [upload-multi-stage-condapack]
+    if: ${{ needs.upload-multi-stage-condapack.result == 'failure' }}
+    runs-on: ubuntu-latest
+    uses: ersilia-os/ersilia-model-workflows/.github/workflows/upload-bentoml.yml@main
+    with:
+      repo_name: ${{ inputs.repo_name }}
+      version: legacy-bentoml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
