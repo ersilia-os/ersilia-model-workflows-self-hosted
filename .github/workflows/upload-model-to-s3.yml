@@ -3,6 +3,10 @@ name: Upload model to S3
 on:
   workflow_call:
     inputs:
+      branch:
+        required: false
+        type: string
+        default: "main"
       repo_name:
         description: "Repository name of the model"
         required: true
@@ -92,7 +96,7 @@ jobs:
           pip install requests pyairtable
           echo "Updating metadata to AirTable looking at owner: $USER_NAME"
           wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-          python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --api-key $AIRTABLE_API_KEY
+          python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
           rm airtableops.py
 
       - name: Sync metadata to S3 JSON
