@@ -120,6 +120,7 @@ jobs:
 
       # If either amd.txt or arm.txt files exist, we tag the image with date and as latest
       - name: Check architecture information
+        id: architecture_info
         env:
           MODEL: ${{ github.event.repository.name }}
         run: |
@@ -152,7 +153,7 @@ jobs:
       
       - name: Save pack method
         id: save_pack_method
-        if: steps.architecture.outcome == 'success'
+        if: steps.architecture_info.outcome == 'success'
         run: |
           echo "FastAPI" > pack_method.txt
 
