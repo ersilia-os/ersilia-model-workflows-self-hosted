@@ -105,7 +105,6 @@ jobs:
   retag-image:
     needs: test-image
     if: ${{ contains(needs.test-image.result, 'success') }}
-    needs: test-image
     runs-on: ubuntu-latest
     steps:
       - name: Download architecture information
