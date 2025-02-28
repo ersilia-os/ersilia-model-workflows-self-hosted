@@ -65,13 +65,12 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            source activate
-            pip install requests pyairtable
+            set -e  # Ensure failure stops execution
+            conda run -n base pip install requests pyairtable
             echo "Updating metadata to AirTable looking at owner: $USER_NAME"
             wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-            python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
+            conda run -n base python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
             rm airtableops.py
-
 
       - name: Sync metadata to S3 JSON
         env:
@@ -80,8 +79,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/convert_airtable_to_json.py
-          pip install boto3 requests pyairtable
-          python convert_airtable_to_json.py $AIRTABLE_API_KEY $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
+          conda run -n base pip install boto3 requests pyairtable
+          conda run -n base python convert_airtable_to_json.py $AIRTABLE_API_KEY $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY
           rm convert_airtable_to_json.py
 
       - name: Update README file

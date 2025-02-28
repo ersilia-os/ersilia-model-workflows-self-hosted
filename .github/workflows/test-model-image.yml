@@ -93,18 +93,21 @@ jobs:
             echo "success" > arm.txt
           fi
 
-      # Upload log artifact from the playground and the architecture information
-      - name: Upload log artifact
+      # Upload architecture information
+      - name: Upload architecture artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
+          name: build-logs # Different name for each platform
           retention-days: 14
           path: |
-            *.txt
+            amd.txt
+            arm.txt
+        if: ${{ hashFiles('amd.txt') != '' || hashFiles('arm.txt') != '' }}
+
 
   retag-image:
     needs: test-image
-    if: ${{ contains(needs.test-image.result, 'success') }}
+    if: ${{ needs.test-image.result != 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Download architecture information
