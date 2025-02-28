@@ -16,7 +16,7 @@ jobs:
   test-image:
     strategy:
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     defaults:
       run:
@@ -59,7 +59,7 @@ jobs:
         continue-on-error: true
         env:
           MODEL_ID: ${{ inputs.repo_name }}
-        run: |
+        run: | # mock test
           conda run -n base bash -c "
           ersilia -v fetch $MODEL_ID --from_dockerhub &&
           ersilia serve $MODEL_ID &&
