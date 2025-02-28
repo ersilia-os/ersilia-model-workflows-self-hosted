@@ -103,7 +103,8 @@ jobs:
             *.txt
 
   retag-image:
-    if: ${{ github.repository != 'ersilia-os/eos-template' }}
+    needs: test-image
+    if: ${{ contains(needs.test-image.result, 'success') }}
     needs: test-image
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +121,7 @@ jobs:
 
       # If either amd.txt or arm.txt files exist, we tag the image with date and as latest
       - name: Check architecture information
-        id: architecture_info
+        id: architecture-info
         env:
           MODEL: ${{ github.event.repository.name }}
         run: |
@@ -152,8 +153,8 @@ jobs:
           cat arch.txt 
       
       - name: Save pack method
-        id: save_pack_method
-        if: steps.architecture_info.outcome == 'success'
+        id: save-pack-method
+        if: steps.architecture-info.outcome == 'success'
         run: |
           echo "FastAPI" > pack_method.txt
 
