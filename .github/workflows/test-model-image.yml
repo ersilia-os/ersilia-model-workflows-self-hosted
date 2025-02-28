@@ -93,7 +93,7 @@ jobs:
             echo "success" > arm.txt
           fi
 
-      -name: list files
+      - name: list files
         run: |
           ls -lah
       # Upload architecture information
