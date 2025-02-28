@@ -111,11 +111,22 @@ jobs:
     if: ${{ needs.test-image.result != 'failure' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download architecture information
+      - name: Download architecture information (Ubuntu)
+        continue-on-error: true  # Allow the step to continue even if the artifact is missing
         uses: actions/download-artifact@v4
         with:
-          name: build-logs
-          path: logs  # Download logs into a subdirectory
+          name: build-logs-ubuntu-latest
+          path: logs  # Store inside logs directory
+
+      - name: Download architecture information (MacOS)
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: build-logs-macos-latest
+          path: logs  # Store inside logs directory
+
+      - name: List downloaded files
+        run: ls -lah logs  # Print contents to debug
 
       - name: Move only architecture files
         run: |
