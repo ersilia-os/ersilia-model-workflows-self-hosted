@@ -72,9 +72,9 @@ jobs:
       #    nox -s execute -- --single $MODEL --cli fetch test --fetch from_dockerhub version dev --test deep
       
       # We will parse the log to see if the test passed
-      - name: Parse log
-        run: |
-          cat log.txt
+      #- name: Parse log
+      #  run: |
+      #    cat log.txt
 
       # Store architecture information
       # If test-playground succeeds we save amd if run on ubuntu, arm if run on macos
@@ -122,3 +122,33 @@ jobs:
               echo "Image test failed, keeping the dev tag"
               exit 1
             fi
+      - name: Determine Architecture and Save to arch.txt
+        run: |
+          ARCH=""
+          if [[ -f amd.txt ]]; then
+            ARCH="AMD"
+          fi
+          if [[ -f arm.txt ]]; then
+            if [[ -n "$ARCH" ]]; then
+              ARCH="$ARCH,ARM"
+            else
+              ARCH="ARM"
+            fi
+          fi
+          echo "$ARCH" > arch.txt
+          cat arch.txt 
+      
+      - name: Save pack method
+        id: save_pack_method
+        if: steps.architecture.outcome == 'success'
+        run: |
+          echo "FastAPI" > pack_method.txt
+
+
+      - name: Upload metadata txt files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-info
+          path: |
+            arch.txt
+            pack_method.txt
