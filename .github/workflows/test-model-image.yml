@@ -160,13 +160,13 @@ jobs:
         run: |
           ARCH=""
           if [[ -f amd.txt ]]; then
-            ARCH="AMD"
+            ARCH="AMD64"
           fi
           if [[ -f arm.txt ]]; then
             if [[ -n "$ARCH" ]]; then
-              ARCH="$ARCH,ARM"
+              ARCH="$ARCH,ARM64"
             else
-              ARCH="ARM"
+              ARCH="ARM64"
             fi
           fi
           echo "$ARCH" > arch.txt
