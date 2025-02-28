@@ -1,4 +1,4 @@
-name: Post Model Upload actions
+name: Post model upload actions
 
 on:
   workflow_call:
@@ -16,6 +16,10 @@ on:
       AWS_ACCESS_KEY:
         required: true
       AWS_SECRET_ACCESS_KEY:
+        required: true
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
         required: true
 jobs:
   post-model-upload:

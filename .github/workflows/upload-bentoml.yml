@@ -1,4 +1,4 @@
-name: Upload BentoML Dockerized Model
+name: Upload bentoml dockerized model
 
 on:
   workflow_call:

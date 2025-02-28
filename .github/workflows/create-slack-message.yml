@@ -1,0 +1,46 @@
+name: Create model test issue
+
+on:
+  workflow_call:
+    inputs:
+      repo_name:
+        required: true
+        type: string
+
+jobs:
+    create-issue:
+      - name: Shuffle assignees
+        id: shuffle
+        run: |
+          export assignees=$(echo "${{ vars.assignees }}" | awk 'BEGIN {FS=","}; {srand();split($0,a,FS); print a[int(rand()*NF+1)]}')
+          echo "$assignees" >> $GITHUB_STEP_SUMMARY
+          echo "shuffled_assignee=$assignees" >> $GITHUB_OUTPUT
+          echo "shuffled_assignee=$assignees" >> $GITHUB_ENV
+
+      - name: Check for existing issue
+        id: check_existing_test_issue
+        run: |
+          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          issue_number=$(gh issue list --limit 100 --search "${{ vars.test_issue_title }}" --json number --jq '.[0].number')
+          echo "::set-output name=issue_number::$issue_number"
+  
+      - name: Create a Test issue
+        uses: actions-ecosystem/action-create-issue@b63bc2bbacb6a838dfe4a9f70da6665ae0962a49
+        id: create_test_issue 
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          title: ${{ vars.TEST_ISSUE_TITLE }}
+          assignees: |
+            ${{ steps.shuffle.outputs.shuffled_assignee }}
+          body: |
+            This model is a new incorporation to the Ersilia Model Hub or it has been modified. If you are assigned to this issue, please try it out and ensure everything works!
+            To test a model, first clone it in your local system (ideally, from dockerhub) using the CLI commands:
+            ```
+            ersilia -v fetch eosxxxx --from_dockerhub
+            ersilia serve eosxxxx
+            ersilia test
+            ```
+            The test command will automatically check that the model can handle null outputs and whether it produces consistent results. Please copy here the result of the test command. If it passes, simply close the issue as completed. If it fails, please detail at which step and whether you have taken any steps to solve it. Please tag the original model contributor and one of Ersilia's maintainers for support.
+          labels: |
+            test
+        if: steps.check_existing_test_issue.outputs.issue_number == ''

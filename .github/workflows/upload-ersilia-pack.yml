@@ -1,4 +1,4 @@
-name: Upload Ersilia Pack Dockerized Model
+name: Upload ersilia pack dockerized model
 
 on:
   workflow_call:
