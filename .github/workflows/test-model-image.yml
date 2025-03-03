@@ -130,21 +130,17 @@ jobs:
       #    cat log.txt
 
   retag-image:
-    runs-on: ubuntu-latests
+    runs-on: ubuntu-latest
     steps:
       - name: Check if AMD successful
-        needs: test-image-amd64
-        if: success()
+        if: ${{ needs.test-image-amd64.result == 'success' }}
         run: |
           echo "AMD64" > amd.txt
-        continue-on-error: true
       
       - name: Check if ARM successful
-        needs: test-image-arm64
-        if: success()
+        if: ${{ needs.test-image-arm64.result == 'success' }}
         run: |
           echo "ARM64" > arm.txt
-        continue-on-error: true
       
       - name: Login to Docker Hub
         uses: docker/login-action@v1
