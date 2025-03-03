@@ -126,12 +126,16 @@ jobs:
           echo "$ARCH" > arch.txt
           cat arch.txt 
       
-      - name: Save pack method
-        id: save-pack-method
-        if: steps.architecture-info.outcome == 'success'
-        run: |
-          echo "FastAPI" > pack_method.txt
-
+      - name: Download pack method
+        uses: actions/download-artifact@v4
+        with:
+          name: pack-method
+          path: .
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Read pack method
+        run: cat pack_method.txt
 
       - name: Upload metadata txt files as artifact
         uses: actions/upload-artifact@v4

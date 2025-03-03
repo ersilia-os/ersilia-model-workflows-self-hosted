@@ -125,25 +125,17 @@ jobs:
 
   merge-multiarch:
     needs: [build-ersilia-pack-image-amd64, build-ersilia-pack-image-arm64]
-    runs-on: ubuntu-latest
+    if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
     steps:
-
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Check which images exist
+      - name: Create multi-arch manifest if both images created
         id: check_images
-        run: |
-          EXISTS_AMD64=$(docker manifest inspect ersiliaos/${{ inputs.repo_name }}:dev-amd64 > /dev/null 2>&1 && echo "true" || echo "false")
-          EXISTS_ARM64=$(docker manifest inspect ersiliaos/${{ inputs.repo_name }}:dev-arm64 > /dev/null 2>&1 && echo "true" || echo "false")
-          echo "AMD64_EXISTS=$EXISTS_AMD64" >> $GITHUB_ENV
-          echo "ARM64_EXISTS=$EXISTS_ARM64" >> $GITHUB_ENV
-
-      - name: Create multi-arch manifest if both exist
-        if: env.AMD64_EXISTS == 'true' && env.ARM64_EXISTS == 'true'
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' && needs.build-ersilia-pack-image-arm64.result == 'success' }}
         run: |
           docker buildx imagetools create \
             -t ersiliaos/${{ inputs.repo_name }}:dev \
@@ -151,13 +143,22 @@ jobs:
             ersiliaos/${{ inputs.repo_name }}:dev-arm64
 
       - name: Rename amd64 to dev if only amd64 exists
-        if: env.AMD64_EXISTS == 'true' && env.ARM64_EXISTS == 'false'
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' && needs.build-ersilia-pack-image-arm64.result == 'failure' }}
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-amd64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
 
       - name: Rename arm64 to dev if only arm64 exists
-        if: env.AMD64_EXISTS == 'false' && env.ARM64_EXISTS == 'true'
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'failure' && needs.build-ersilia-pack-image-arm64.result == 'success' }}
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
+
+      - name: Save pack method
+        run: echo "FastAPI" > pack_method.txt
+
+      - name: Upload pack method artifact
+        uses: actions/upload-artifact@v4.5.0
+        with:
+          name: pack-method
+          path: pack_method.txt

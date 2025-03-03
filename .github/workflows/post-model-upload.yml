@@ -29,13 +29,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download arch.txt
+      - name: Download architecture files
         uses: actions/download-artifact@v4
         with:
           name: architecture-info
           path: .
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Print architecture
+        run: |
+          cat arch.txt
+          cat pack_method.txt
 
       - name: Check metadata file
         id: checkMetadata
