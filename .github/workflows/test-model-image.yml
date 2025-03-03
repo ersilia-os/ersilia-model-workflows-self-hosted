@@ -71,25 +71,6 @@ jobs:
       #  run: |
       #    cat log.txt
 
-      # Store architecture information
-      - name: Store architecture information
-        id: architecture
-        if: steps.test-playground.outcome == 'success'
-        run: |
-          echo "AMD64" > amd.txt
-
-      - name: List files
-        run: |
-          ls -lah
-      # Upload architecture information
-      - name: Upload architecture artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-amd
-          retention-days: 14
-          path: |
-            amd.txt
-
   test-image-arm64:
     runs-on: default-linux-arm64
     steps:
@@ -148,50 +129,22 @@ jobs:
       #  run: |
       #    cat log.txt
 
-      # Store architecture information
-      - name: Store architecture information
-        id: architecture
-        if: steps.test-playground.outcome == 'success'
+  retag-image:
+    runs-on: ubuntu-latests
+    steps:
+      - name: Check if AMD successful
+        needs: test-image-amd64
+        if: success()
+        run: |
+          echo "AMD64" > amd.txt
+        continue-on-error: true
+      
+      - name: Check if ARM successful
+        needs: test-image-arm64
+        if: success()
         run: |
           echo "ARM64" > arm.txt
-
-      - name: List files
-        run: |
-          ls -lah
-      # Upload architecture information
-      - name: Upload architecture artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-arm
-          retention-days: 14
-          path: |
-            amd.txt
-
-  retag-image:
-    needs: test-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download architecture information (Ubuntu)
-        continue-on-error: true  # Allow the step to continue even if the artifact is missing
-        uses: actions/download-artifact@v4
-        with:
-          name: build-logs-amd
-          path: logs  # Store inside logs directory
-
-      - name: Download architecture information (MacOS)
         continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: build-logs-arm
-          path: logs  # Store inside logs directory
-
-      - name: List downloaded files
-        run: ls -lah logs  # Print contents to debug
-
-      - name: Move only architecture files
-        run: |
-          [[ -f logs/amd.txt ]] && mv logs/amd.txt .
-          [[ -f logs/arm.txt ]] && mv logs/arm.txt .
       
       - name: Login to Docker Hub
         uses: docker/login-action@v1
