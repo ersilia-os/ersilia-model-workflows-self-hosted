@@ -134,19 +134,30 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Create multi-arch manifest
+      - name: Check which images exist
+        id: check_images
+        run: |
+          EXISTS_AMD64=$(docker manifest inspect ersiliaos/${{ inputs.repo_name }}:dev-amd64 > /dev/null 2>&1 && echo "true" || echo "false")
+          EXISTS_ARM64=$(docker manifest inspect ersiliaos/${{ inputs.repo_name }}:dev-arm64 > /dev/null 2>&1 && echo "true" || echo "false")
+          echo "AMD64_EXISTS=$EXISTS_AMD64" >> $GITHUB_ENV
+          echo "ARM64_EXISTS=$EXISTS_ARM64" >> $GITHUB_ENV
+
+      - name: Create multi-arch manifest if both exist
+        if: env.AMD64_EXISTS == 'true' && env.ARM64_EXISTS == 'true'
         run: |
           docker buildx imagetools create \
             -t ersiliaos/${{ inputs.repo_name }}:dev \
             ersiliaos/${{ inputs.repo_name }}:dev-amd64 \
             ersiliaos/${{ inputs.repo_name }}:dev-arm64
 
-      - name: Save pack method
+      - name: Rename amd64 to dev if only amd64 exists
+        if: env.AMD64_EXISTS == 'true' && env.ARM64_EXISTS == 'false'
         run: |
-          echo "FastAPI" > pack_method.txt
+          docker tag ersiliaos/${{ inputs.repo_name }}:dev-amd64 ersiliaos/${{ inputs.repo_name }}:dev
+          docker push ersiliaos/${{ inputs.repo_name }}:dev
 
-      - name: Upload metadata txt files as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: architecture-info
-          path: pack_method.txt
+      - name: Rename arm64 to amd if only arm64 exists
+        if: env.AMD64_EXISTS == 'false' && env.ARM64_EXISTS == 'true'
+        run: |
+          docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
+          docker push ersiliaos/${{ inputs.repo_name }}:dev
