@@ -43,7 +43,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           cd ersilia/test/playground
-          nox -s execute -- --single $MODEL --cli fetch --fetch from_dockerhub version dev-amd64
+          nox -s execute -p 3.12 -fb conda -- --single $MODEL --cli fetch --fetch from_dockerhub version dev-amd64
 
   test-image-arm64:
     runs-on: default-linux-arm64
@@ -75,7 +75,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           cd ersilia/test/playground
-          nox -s execute -- --single $MODEL --cli fetch --fetch from_dockerhub version dev-arm64
+          nox -s execute -p 3.12 -fb conda -- --single $MODEL --cli fetch --fetch from_dockerhub version dev-arm64
       
   retag-image:
     runs-on: ubuntu-latest
