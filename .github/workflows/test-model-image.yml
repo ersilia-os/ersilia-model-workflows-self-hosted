@@ -44,6 +44,9 @@ jobs:
   test-image-arm64:
     runs-on: default-linux-arm64
     steps:
+      - name: print architecture
+        run: |
+          echo "Architecture: $(uname -m)"
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
         with:
