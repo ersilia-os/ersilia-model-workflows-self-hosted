@@ -156,7 +156,7 @@ jobs:
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-amd64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
 
-      - name: Rename arm64 to amd if only arm64 exists
+      - name: Rename arm64 to dev if only arm64 exists
         if: env.AMD64_EXISTS == 'false' && env.ARM64_EXISTS == 'true'
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
