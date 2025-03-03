@@ -61,7 +61,7 @@ jobs:
         with:
           repository: ersilia-os/ersilia
           ref: master
-          path: ersilias
+          path: ersilia
       
       # Install ersilia with the test extra
       - name: Install ersilia
