@@ -60,7 +60,7 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          conda run -n base ersilia -v fetch $MODEL_ID --from_dockerhub --version dev
+          conda run -n base ersilia -v fetch $MODEL_ID --from_github
       
   retag-image:
     runs-on: ubuntu-latest
@@ -90,10 +90,11 @@ jobs:
         run: |
             if [[ -f amd.txt || -f arm.txt ]]; then
               echo "Tagging image with date and as latest"
-              docker pull ersiliaos/${{ github.event.repository.name }}:dev
-              docker tag ersiliaos/$MODEL:dev ersiliaos/$MODEL:$(date +%Y-%m-%d)
-              docker tag ersiliaos/$MODEL:dev ersiliaos/$MODEL:latest
-              docker push ersiliaos/$MODEL:$(date +%Y-%m-%d) && docker push ersiliaos/$MODEL:latest
+              docker buildx imagetools create \
+                --tag ersiliaos/$MODEL:$(date +%Y-%m-%d) \
+                --tag ersiliaos/$MODEL:latest \
+                ersiliaos/$MODEL:dev
+              echo "Successfully retagged multi-architecture image."
             else
               echo "Image test failed, keeping the dev tag"
               exit 1
