@@ -131,6 +131,7 @@ jobs:
 
   retag-image:
     runs-on: ubuntu-latest
+    needs: [test-image-amd64, test-image-arm64]
     steps:
       - name: Check if AMD successful
         if: ${{ needs.test-image-amd64.result == 'success' }}
