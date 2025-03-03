@@ -108,15 +108,14 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: | # mock test
-          conda run -n base bash -c "
-          ersilia -v fetch $MODEL_ID --from_dockerhub &&
-          ersilia serve $MODEL_ID &&
-          ersilia example -f input.csv -n 3 &&
-          ersilia run -i input.csv -o output.csv &&
-          ersilia close &&
-          ersilia delete $MODEL_ID &&
-          head output.csv
-          "
+          conda run -n base ersilia -v fetch $MODEL_ID --from_dockerhub
+          conda run -n base ersilia serve $MODEL_ID
+          conda run -n base ersilia example -f input.csv -n 3
+          conda run -n base ersilia -v run -i input.csv -o output.csv
+          conda run -n base ersilia close
+          conda run -n base ersilia delete $MODEL_ID
+          conda run -n base head output.csv
+    
       #  env:
       #    MODEL: ${{ github.event.repository.name }}
       #    TAG: ${{ inputs.tag }}
