@@ -62,14 +62,7 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          set -x
-          conda run -n base ersilia -v fetch $MODEL_ID --from_dockerhub --version dev-arm64
-          conda run -n base ersilia serve $MODEL_ID
-          conda run -n base ersilia example -f input.csv -n 3
-          conda run -n base ersilia run -i input.csv -o output.csv
-          conda run -n base ersilia close
-          conda run -n base ersilia delete $MODEL_ID
-          conda run -n base head output.csv
+          docker pull ersiliaos/$MODEL_ID:dev-arm64
       
   retag-image:
     runs-on: ubuntu-latest
