@@ -137,10 +137,13 @@ jobs:
       - name: Read pack method
         run: cat pack_method.txt
 
-      - name: Upload metadata txt files as artifact
-        uses: actions/upload-artifact@v4
+      - name: Commit and push changes done to the README file
+        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
         with:
-          name: architecture-info
-          path: |
-            arch.txt
-            pack_method.txt
+          author_name: "ersilia-bot"
+          author_email: "ersilia-bot@users.noreply.github.com"
+          message: "updating architecture and pack method as temporary files [skip ci]"
+          repository: "ersilia-os/${{ github.event.repository.name }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          amend: true
+          force: true
