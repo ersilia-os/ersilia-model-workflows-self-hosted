@@ -33,13 +33,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: architecture
-          path: arch.txt
+          path: .
 
       - name: Download pack method file
         uses: actions/download-artifact@v4
         with:
           name: pack-method
-          path: pack_method.txt
+          path: .
       
       - name: Print architecture and pack method
         run: |
