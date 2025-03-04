@@ -1,6 +1,10 @@
 name: Send Slack message
 on:
   workflow-call:
+    inputs:
+      repo_name:
+        required: true
+        type: string
     secrets:
       SLACK_CHANNEL_TESTER:
         required: true
