@@ -133,7 +133,6 @@ jobs:
           path: .
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run: cat ${{ github.event.workflow_run.id }}
       
       - name: Read pack method
         run: cat pack_method.txt

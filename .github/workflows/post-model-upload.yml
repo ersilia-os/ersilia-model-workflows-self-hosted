@@ -33,17 +33,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: architecture
-          path: .
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: arch.txt
 
       - name: Download pack method file
         uses: actions/download-artifact@v4
         with:
           name: pack-method
-          path: .
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pack_method.txt
       
       - name: Print architecture and pack method
         run: |
