@@ -110,8 +110,6 @@ jobs:
           message: "updating metadata [skip ci]"
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          amend: true
-          force: true
 
       # Setup conda
       - name: Setup conda
@@ -177,8 +175,6 @@ jobs:
           message: "updating readme [skip ci]"
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          amend: true
-          force: true
 
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v3

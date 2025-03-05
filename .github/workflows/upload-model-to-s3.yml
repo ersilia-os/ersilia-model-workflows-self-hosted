@@ -84,8 +84,6 @@ jobs:
           message: "updating metadata [skip ci]"
           repository: "ersilia-os/${{ inputs.repo_name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          amend: true
-          force: true
 
       - name: Update metadata to AirTable
         env:
@@ -133,8 +131,6 @@ jobs:
           message: "updating readme [skip ci]"
           repository: "ersilia-os/${{ inputs.repo_name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          amend: true
-          force: true
 
       - name: Upload model to S3
         env:
