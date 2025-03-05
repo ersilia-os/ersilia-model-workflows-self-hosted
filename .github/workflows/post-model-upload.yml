@@ -139,10 +139,10 @@ jobs:
           conda run -n base pip install requests pyairtable
           echo "Updating metadata to AirTable looking at owner: $USER_NAME"
           wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme-formatter.py
+          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme_formatter.py
           conda run -n base python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
           rm airtableops.py
-          rm readme-formatter.py
+          rm readme_formatter.py
   
       - name: sync metadata to S3 JSON
         id: sync-metadata-to-s3
@@ -163,10 +163,10 @@ jobs:
         run: |
           echo "Updating README file with AirTable metadata for model: $MODEL_ID"
           wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme-formatter.py
+          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme_formatter.py
           conda run -n base python3 airtableops.py readme-update --repo $MODEL_ID --path .
           rm airtableops.py
-          rm readme-formatter.py
+          rm readme_formatter.py
           less README.md
 
       - name: Commit and push changes done to the README file
