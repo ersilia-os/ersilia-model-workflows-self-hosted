@@ -52,7 +52,7 @@ jobs:
           conda run -n base conda install gh -c conda-forge
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
 
-      - name: Update metadata to AirTable
+      - name: Update metadata to or from AirTable
         env:
           USER_NAME: ${{ github.repository_owner }}
           BRANCH: ${{ inputs.branch }}
@@ -65,9 +65,42 @@ jobs:
           command: |
             set -e  # Ensure failure stops execution
             conda run -n base pip install requests pyairtable
-            echo "Updating metadata to AirTable looking at owner: $USER_NAME"
+            
             wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
-            conda run -n base python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
+
+            # check if we have a YAML or JSON file
+            if [ -f "metadata.yml" ]; then
+              metadata="metadata.yml"
+            elif [ -f "metadata.json" ]; then
+              metadata="metadata.json"
+            else
+              echo "No metadata file found."
+              exit 1
+            fi
+
+            echo "Found metadata file: $metadata"
+
+            # Check the "Output Consistency" field based on file type.
+            if [[ "$metadata" == "metadata.json" ]]; then
+              # Extract the "Output Consistency" field from JSON.
+              output_consistency=$(jq -r '.["Output Consistency"] // empty' "$metadata")
+            elif [[ "$metadata" == "metadata.yml" ]]; then
+              # Extract the "Output Consistency" field from YAML.
+              output_consistency=$(yq e '.["Output Consistency"] // ""' "$metadata")
+            fi
+
+            # Verify that the field exists and is non-empty.
+            if [ -n "$output_consistency" ]; then
+              echo "'Output Consistency' exists and has value: $output_consistency"
+              echo "Updating metadata to AirTable looking at owner: $USER_NAME"
+              conda run -n base python3 airtableops.py airtable-update --user $USER_NAME --repo $REPO_NAME --branch $BRANCH --api-key $AIRTABLE_API_KEY
+            else
+              echo "'Output Consistency' is missing or empty in $metadata."
+              echo "Updating metadata from AirTable looking at owner: $USER_NAME"
+              conda run -n base python3 airtableops.py metadata-update --repo $REPO_NAME --commit True --api-key $AIRTABLE_API_KEY
+            fi
+
+            # remove file
             rm airtableops.py
 
       - name: Sync metadata to S3 JSON
