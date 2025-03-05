@@ -86,12 +86,23 @@ jobs:
             else
               echo "'Output Consistency' is missing or empty in $metadata."
               echo "Updating metadata from AirTable looking at owner: $USER_NAME"
-              conda run -n base python3 airtableops.py metadata-update --repo $REPO_NAME --commit --api-key $AIRTABLE_API_KEY
+              conda run -n base python3 airtableops.py metadata-update --repo $REPO_NAME --path . --api-key $AIRTABLE_API_KEY
             fi
 
             # remove file
             rm airtableops.py
-            rm readme_formatter
+            rm readme_formatter.py
+
+      - name: Commit and push changes done to the Metadata file
+        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        with:
+          author_name: "ersilia-bot"
+          author_email: "ersilia-bot@users.noreply.github.com"
+          message: "updating readme [skip ci]"
+          repository: "ersilia-os/${{ github.event.repository.name }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          amend: true
+          force: true
 
       - name: Sync metadata to S3 JSON
         env:
