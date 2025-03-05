@@ -86,7 +86,7 @@ jobs:
             else
               echo "'Output Consistency' is missing or empty in $metadata."
               echo "Updating metadata from AirTable looking at owner: $USER_NAME"
-              conda run -n base python3 airtableops.py metadata-update --repo $REPO_NAME --commit True --api-key $AIRTABLE_API_KEY
+              conda run -n base python3 airtableops.py metadata-update --repo $REPO_NAME --commit --api-key $AIRTABLE_API_KEY
             fi
 
             # remove file
