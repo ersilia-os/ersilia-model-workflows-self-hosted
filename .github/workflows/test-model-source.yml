@@ -22,19 +22,7 @@ jobs:
   model-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
+
 
       - uses: actions/checkout@v4.2.2
         with:
@@ -67,6 +55,7 @@ jobs:
             conda run -n base pip install requests pyairtable
             
             wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py
+            wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme-formatter.py
 
             # check if we have a YAML or JSON file
             if [ -f "metadata.yml" ]; then
@@ -102,6 +91,7 @@ jobs:
 
             # remove file
             rm airtableops.py
+            rm readme-formatter
 
       - name: Sync metadata to S3 JSON
         env:
@@ -122,8 +112,10 @@ jobs:
           conda run -n base bash -c "
             echo 'Updating README file with AirTable metadata for model: $MODEL_ID' &&
             wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/airtableops.py &&
+            wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/readme-formatter.py &&
             python3 airtableops.py readme-update --repo $MODEL_ID --path . &&
             rm airtableops.py &&
+            rm readme-formatter.py &&
             less README.md
           "
 
