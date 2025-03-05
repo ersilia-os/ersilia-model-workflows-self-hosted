@@ -110,6 +110,8 @@ jobs:
           message: "updating metadata [skip ci]"
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          amend: true
+          force: true
 
       - name: Sync metadata to S3 JSON
         env:
@@ -145,6 +147,8 @@ jobs:
           message: "updating metadata [skip ci]"
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          amend: true
+          force: true
 
       - name: Fetch model and run #TODO change for test command 
         env:
