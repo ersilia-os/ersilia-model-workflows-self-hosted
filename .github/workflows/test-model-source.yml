@@ -196,10 +196,8 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         with:
-          name: logs
+          name: model_sizes
           retention-days: 14
           path: |
-            /home/runner/eos/*.log
-            ./*.log
-            $MODEL_ID-test-shallow.json
+            $MODEL_ID-test.json
             model_sizes.txt
