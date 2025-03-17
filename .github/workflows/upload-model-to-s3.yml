@@ -99,7 +99,7 @@ jobs:
           with open('metadata.yml', 'r') as f:
              data = yaml.safe_load(f)
           data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
-          data["Model Size"] = ${{ DIRECTORY_SIZE_MB }}
+          data["Model Size"] = ${{ env.DIRECTORY_SIZE_MB }}
           data["Environment Size"] = ${{ env.ENVIRONMENT_SIZE_MB }}
           with open('metadata.yml', 'w') as f:
              yaml.dump(data, f, default_flow_style=False, sort_keys=False)
