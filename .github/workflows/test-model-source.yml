@@ -154,26 +154,52 @@ jobs:
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch model and run #TODO change for test command 
+      - name: Fetch model and run
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
           conda run -n base bash -c "
-            ersilia -v fetch $MODEL_ID --from_github &&
-            ersilia serve $MODEL_ID &&
-            ersilia example -f input.csv -n 3 &&
-            ersilia run -i input.csv -o output.csv &&
-            ersilia close &&
-            ersilia delete $MODEL_ID &&
-            head output.csv
+            ersilia -v test $MODEL_ID --shallow --from_github
           "
 
-      - name: Upload log output
+      - name: Parse test results
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test-shallow.json"
+
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+
+          echo "Parsing test results from $TEST_JSON"
+
+          
+          TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
+              if [[ -n "$TEST_FAILED" ]]; then
+                echo "❌ Some tests failed. Stopping workflow."
+                exit 1
+              fi
+
+          ENV_SIZE=$(jq '.model_size_check.environment_size_mb' "$TEST_JSON")
+          DIR_SIZE=$(jq '.model_size_check.directory_size_mb' "$TEST_JSON")
+          echo "Environment size: $ENV_SIZE MB"
+          echo "Directory size: $DIR_SIZE MB"
+          echo "Environment size (MB): $ENV_SIZE" > model_sizes.txt
+          echo "Directory size (MB): $DIR_SIZE" >> model_sizes.txt
+          cat model_sizes.txt
+
+      - name: Upload files
         if: always()
         uses: actions/upload-artifact@v4.5.0
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
         with:
-          name: debug-logs
+          name: logs
           retention-days: 14
           path: |
             /home/runner/eos/*.log
             ./*.log
+            $MODEL_ID-test-shallow.json
+            model_sizes.txt

@@ -46,6 +46,24 @@ jobs:
           cat arch.txt
           cat pack_method.txt
 
+      - name: Download amd64 test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-report-amd64
+          path: .
+
+      - name: Extract report numbers
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          JSON_FILE="./${MODEL_ID}-test-deep-amd64.json"
+          export COMPUTATIONAL_PERFORMANCE_1=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_1' $JSON_FILE)
+          export COMPUTATIONAL_PERFORMANCE_10=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_10' $JSON_FILE)
+          export COMPUTATIONAL_PERFORMANCE_100=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_100' $JSON_FILE)
+          echo "COMPUTATIONAL_PERFORMANCE_1=${COMPUTATIONAL_PERFORMANCE_1}" >> $GITHUB_ENV
+          echo "COMPUTATIONAL_PERFORMANCE_10=${COMPUTATIONAL_PERFORMANCE_10}" >> $GITHUB_ENV
+          echo "COMPUTATIONAL_PERFORMANCE_100=${COMPUTATIONAL_PERFORMANCE_100}" >> $GITHUB_ENV
+
       - name: Check metadata file
         id: checkMetadata
         continue-on-error: true
@@ -72,6 +90,9 @@ jobs:
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
+          data['Computational Performance 1'] = ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
+          data['Computational Performance 10'] = ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
+          data['Computational Performance 100'] = ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
           with open('metadata.yml', 'w') as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
           "
@@ -95,6 +116,9 @@ jobs:
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
+          data['Computational Performance 1'] = ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
+          data['Computational Performance 10'] = ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
+          data['Computational Performance 100'] = ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
           with open('metadata.json', 'w') as f:
             json.dump(data, f, indent=4)
           "

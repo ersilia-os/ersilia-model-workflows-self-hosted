@@ -32,14 +32,36 @@ jobs:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
           conda run -n base bash -c "
-            ersilia -v fetch $MODEL_ID --from_dockerhub --version dev-amd64 &&
-            ersilia serve $MODEL_ID &&
-            ersilia example -f input.csv -n 3 &&
-            ersilia run -i input.csv -o output.csv &&
-            ersilia close &&
-            ersilia delete $MODEL_ID &&
-            head output.csv
+            ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-amd64
           "
+      - name: Parse test results
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test-deep.json"
+          
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+          mv "${MODEL_ID}-test-deep.json" "${MODEL_ID}-test-deep-amd64.json"
+          TEST_JSON="${MODEL_ID}-test-deep-amd64.json"
+          echo "Parsing test results from $TEST_JSON"
+
+          TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
+              if [[ -n "$TEST_FAILED" ]]; then
+                echo "❌ Some tests failed. Stopping workflow."
+                exit 1
+              fi
+
+      - name: Upload logs as artifacts
+        uses: actions/upload-artifact@v4
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        with:
+          name: test-report-amd64
+          path: |
+            ${MODEL_ID}-test-deep-amd64.json
 
   test-image-arm64:
     runs-on: default-linux-arm64
@@ -63,14 +85,36 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          conda run -n base ersilia -v fetch $MODEL_ID --from_dockerhub --version dev-arm64 2>&1 | tee fetch.log
+          conda run -n base ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64 2>&1 | tee fetch.log
+
+      - name: Parse test results
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test-deep.json"
+          
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+          mv "${MODEL_ID}-test-deep.json" "${MODEL_ID}-test-deep-arm64.json"
+          TEST_JSON="${MODEL_ID}-test-deep-arm64.json"
+          echo "Parsing test results from $TEST_JSON"
+
+          TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
+              if [[ -n "$TEST_FAILED" ]]; then
+                echo "❌ Some tests failed. Stopping workflow."
+                exit 1
+              fi
         
       - name: Upload logs as artifacts
         uses: actions/upload-artifact@v4
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
         with:
-          name: ersilia-logs
+          name: test-report-arm64
           path: |
-            fetch.log
+            ${MODEL_ID}-test-deep-arm64.json
       
   retag-image:
     runs-on: ubuntu-latest

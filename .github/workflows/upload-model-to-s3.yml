@@ -43,6 +43,31 @@ jobs:
           conda run -n base git-lfs install
           conda run -n base python -m pip install git+https://github.com/ersilia-os/ersilia.git
 
+      - name: Download model sizes
+        uses: actions/download-artifact@v4
+        with:
+          name: logs
+          path: .
+
+      - name: Read model sizes
+        run: |
+          if [[ ! -f ./model_sizes.txt ]]; then
+            echo "Error: model_sizes.txt not found!"
+            exit 1
+          fi
+
+          ENV_SIZE=$(grep "Environment size" ./model_sizes.txt | awk -F': ' '{print $2}')
+          DIR_SIZE=$(grep "Directory size" ./model_sizes.txt | awk -F': ' '{print $2}')
+
+          if [[ -z "$ENV_SIZE" || -z "$DIR_SIZE" ]]; then
+            echo "Error: Missing environment size or directory size."
+            exit 1
+          fi
+          echo "Environment Size (MB): $ENV_SIZE"
+          echo "Directory Size (MB): $DIR_SIZE"
+          echo "ENVIRONMENT_SIZE_MB=$ENV_SIZE" >> $GITHUB_ENV
+          echo "DIRECTORY_SIZE_MB=$DIR_SIZE" >> $GITHUB_ENV
+
       - name: Check metadata file
         id: checkMetadata
         continue-on-error: true
@@ -60,6 +85,8 @@ jobs:
           with open('metadata.json', 'r') as f:
              data = json.load(f)
           data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
+          data["Model Size"] = ${{ DIRECTORY_SIZE_MB }}
+          data["Environment Size"] = ${{ env.ENVIRONMENT_SIZE_MB }}
           with open('metadata.json', 'w') as f:
              json.dump(data, f, indent=4)
           "
@@ -72,6 +99,8 @@ jobs:
           with open('metadata.yml', 'r') as f:
              data = yaml.safe_load(f)
           data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
+          data["Model Size"] = ${{ DIRECTORY_SIZE_MB }}
+          data["Environment Size"] = ${{ env.ENVIRONMENT_SIZE_MB }}
           with open('metadata.yml', 'w') as f:
              yaml.dump(data, f, default_flow_style=False, sort_keys=False)
           "
