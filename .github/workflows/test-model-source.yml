@@ -166,7 +166,7 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          TEST_JSON="${MODEL_ID}-test-shallow.json"
+          TEST_JSON="${MODEL_ID}-test.json"
 
           if [[ ! -f "$TEST_JSON" ]]; then
             echo "Error: Test results file $TEST_JSON not found!"

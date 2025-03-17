@@ -56,7 +56,7 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          JSON_FILE="./${MODEL_ID}-test-deep-amd64.json"
+          JSON_FILE="./${MODEL_ID}-test-amd64.json"
           export COMPUTATIONAL_PERFORMANCE_1=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_1' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_10=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_10' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_100=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_100' $JSON_FILE)
