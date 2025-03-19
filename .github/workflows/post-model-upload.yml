@@ -110,6 +110,7 @@ jobs:
         run: |
           python3 -c "
           import json
+          float(os.getenv('DIRECTORY_SIZE_MB'))
           with open('metadata.json', 'r') as f:
             data = json.load(f)
           print(data)
