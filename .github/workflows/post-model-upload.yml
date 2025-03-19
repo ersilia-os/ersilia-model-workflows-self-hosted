@@ -63,6 +63,7 @@ jobs:
           echo "COMPUTATIONAL_PERFORMANCE_1=${COMPUTATIONAL_PERFORMANCE_1}" >> $GITHUB_ENV
           echo "COMPUTATIONAL_PERFORMANCE_10=${COMPUTATIONAL_PERFORMANCE_10}" >> $GITHUB_ENV
           echo "COMPUTATIONAL_PERFORMANCE_100=${COMPUTATIONAL_PERFORMANCE_100}" >> $GITHUB_ENV
+          cat $JSON_FILE
 
       - name: Check metadata file
         id: checkMetadata
@@ -102,6 +103,10 @@ jobs:
       - name: Update Metadata JSON file with DockerHub info
         id: updateMetadataJSON
         if: steps.checkMetadata.outcome == 'failure'
+        env:
+          COMPUTATIONAL_PERFORMANCE_1: ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
+          COMPUTATIONAL_PERFORMANCE_10: ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
+          COMPUTATIONAL_PERFORMANCE_100: ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
         run: |
           python3 -c "
           import json
@@ -116,9 +121,9 @@ jobs:
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
-          data['Computational Performance 1'] = ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
-          data['Computational Performance 10'] = ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
-          data['Computational Performance 100'] = ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
+          data['Computational Performance 1'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_1'))
+          data['Computational Performance 10'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_10'))
+          data['Computational Performance 100'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_100'))
           with open('metadata.json', 'w') as f:
             json.dump(data, f, indent=4)
           "

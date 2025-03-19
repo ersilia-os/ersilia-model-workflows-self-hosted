@@ -27,7 +27,7 @@ jobs:
         run: |
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
 
-      - name: Fetch model and run #TODO change for test command 
+      - name: Test AMD64 image
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
@@ -81,11 +81,11 @@ jobs:
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
           conda run -n base ersilia --version
 
-      - name: Fetch model and run 
+      - name: Test ARM64 image
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          conda run -n base ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64 2>&1 | tee fetch.log
+          conda run -n base ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64
 
       - name: Parse test results
         env:
