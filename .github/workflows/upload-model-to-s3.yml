@@ -47,7 +47,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: model_sizes
-          path: .
 
       - name: Read model sizes
         run: |

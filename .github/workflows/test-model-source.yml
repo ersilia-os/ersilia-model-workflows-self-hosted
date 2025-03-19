@@ -199,5 +199,5 @@ jobs:
           name: model_sizes
           retention-days: 14
           path: |
-            $MODEL_ID-test.json
+            ${MODEL_ID}-test.json
             model_sizes.txt

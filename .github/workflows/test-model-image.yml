@@ -81,7 +81,7 @@ jobs:
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
           conda run -n base ersilia --version
 
-      - name: Fetch model and run #TODO change for test command 
+      - name: Fetch model and run 
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
