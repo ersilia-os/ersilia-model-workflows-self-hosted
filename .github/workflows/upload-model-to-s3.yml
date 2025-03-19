@@ -84,6 +84,7 @@ jobs:
         run: |
           python3 -c "
           import json
+          import os
           with open('metadata.json', 'r') as f:
              data = json.load(f)
           data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
