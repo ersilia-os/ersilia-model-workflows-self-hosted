@@ -154,13 +154,14 @@ jobs:
           repository: "ersilia-os/${{ github.event.repository.name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch model and run
+      - name: Test model from GitHub
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
           conda run -n base bash -c "
             ersilia -v test $MODEL_ID --shallow --from_github
           "
+          cat $MODEL_ID-test.json
 
       - name: Parse test results
         env:
@@ -189,15 +190,14 @@ jobs:
           echo "Environment size (MB): $ENV_SIZE" > model_sizes.txt
           echo "Directory size (MB): $DIR_SIZE" >> model_sizes.txt
           cat model_sizes.txt
+          cat $TEST_JSON
 
       - name: Upload files
         if: always()
         uses: actions/upload-artifact@v4.5.0
-        env:
-          MODEL_ID: ${{ inputs.repo_name }}
         with:
           name: model_sizes
           retention-days: 14
           path: |
-            ${MODEL_ID}-test.json
+            ${{ inputs.repo_name }}-test.json
             model_sizes.txt
