@@ -87,8 +87,8 @@ jobs:
           with open('metadata.json', 'r') as f:
              data = json.load(f)
           data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
-          data["Model Size"] = float(os.getenv('DIRECTORY_SIZE_MB'))
-          data["Environment Size"] = float(os.getenv('ENVIRONMENT_SIZE_MB'))
+          data['Model Size'] = float(os.getenv('DIRECTORY_SIZE_MB'))
+          data['Environment Size'] = float(os.getenv('ENVIRONMENT_SIZE_MB'))
           with open('metadata.json', 'w') as f:
              json.dump(data, f, indent=4)
           "
