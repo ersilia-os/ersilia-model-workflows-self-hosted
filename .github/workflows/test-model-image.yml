@@ -80,6 +80,12 @@ jobs:
         run: |
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
           conda run -n base ersilia --version
+      
+      - name: Fetch ARM64 image
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          conda run -n base ersilia -v fetch $MODEL_ID --from_dockerhub --version dev-arm64
 
       - name: Test ARM64 image
         env:
