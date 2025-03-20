@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git@package-resolver#egg=ersilia[test]'
+          conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
 
       - name: Test AMD64 image
         env:
@@ -78,7 +78,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git@package-resolver#egg=ersilia[test]'
+          conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
           conda run -n base ersilia --version
 
       - name: Test ARM64 image
@@ -119,6 +119,7 @@ jobs:
   retag-image:
     runs-on: ubuntu-latest
     needs: [test-image-amd64, test-image-arm64]
+    if: always()
     steps:
       - name: Check if AMD successful
         if: ${{ needs.test-image-amd64.result == 'success' }}
