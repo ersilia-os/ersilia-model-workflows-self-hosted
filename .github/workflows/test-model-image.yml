@@ -87,7 +87,9 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          conda run -n base ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64
+          conda run -n base bash -c "
+            ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64
+          "
 
       - name: Parse test results
         env:
