@@ -97,7 +97,7 @@ jobs:
             exit 1
           fi
 
-      - name: Decide metadata upate to/from Airtable
+      - name: Decide metadata update to/from Airtable
         run: |
           if [[ "$METADATA_FILE" == "metadata.json" ]]; then
             output_consistency=$(jq -r '.["Output Consistency"] // empty' "$METADATA_FILE")
