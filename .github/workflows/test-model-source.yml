@@ -48,6 +48,12 @@ jobs:
           conda run -n base conda install gh -c conda-forge
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
 
+      - name: Install jq and yq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          sudo snap install yq
+
       - name: Select correct metadata file
         run: |
           if [ -f "metadata.yml" ]; then
@@ -60,6 +66,36 @@ jobs:
           fi
           echo "METADATA_FILE=$metadata" >> "$GITHUB_ENV"
           echo "Found metadata file: $metadata"
+
+      - name: Add creation date to metadata
+        env:
+          USER_NAME: ${{ github.repository_owner }}
+          BRANCH: ${{ inputs.branch }}
+          REPO_NAME: ${{ inputs.repo_name }}
+          METADATA_FILE: ${{ env.METADATA_FILE }}
+        run: |
+          echo "Using repo: $USER_NAME/$REPO_NAME"
+          echo "Target metadata file: $METADATA_FILE"
+
+          # Get creation date via GitHub API
+          CREATED_AT=$(curl -s "https://api.github.com/repos/$USER_NAME/$REPO_NAME" | jq -r '.created_at')
+
+          # Convert to d/m/Y format
+          INCORP_DATE=$(date -d "$CREATED_AT" +"%-d/%-m/%Y")
+
+          echo "Incorporation Date: $INCORP_DATE"
+
+          # Detect file type
+          EXT="${METADATA_FILE##*.}"
+
+          if [[ "$EXT" == "json" ]]; then
+            jq --arg date "$INCORP_DATE" '.["Incorporation Date"] = $date' "$METADATA_FILE" > tmp && mv tmp "$METADATA_FILE"
+          elif [[ "$EXT" == "yml" || "$EXT" == "yaml" ]]; then
+            yq -i ".\"Incorporation Date\" = \"$INCORP_DATE\"" "$METADATA_FILE"
+          else
+            echo "❌ Unsupported metadata file type: $METADATA_FILE"
+            exit 1
+          fi
 
       - name: Decide metadata upate to/from Airtable
         run: |
@@ -78,7 +114,6 @@ jobs:
             echo "Updating metadata **FROM** Airtable."
             echo "AIRTABLE_ACTION=FROM" >> "$GITHUB_ENV"
           fi
-
 
       - name: Update metadata to or from AirTable
         env:
@@ -176,7 +211,6 @@ jobs:
 
           echo "Parsing test results from $TEST_JSON"
 
-          
           TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
               if [[ -n "$TEST_FAILED" ]]; then
                 echo "❌ Some tests failed. Stopping workflow."
