@@ -132,9 +132,12 @@ jobs:
           with open('metadata.json', 'w') as f:
             json.dump(data, f, indent=4)
           "
-          rm arch.txt
-          rm pack_method.txt
-      
+
+      - name: Remove downloaded artifacts
+        run: |
+            rm -rf architecture
+            rm -rf pack-method
+            rm -rf test-report-amd64
           
       - name: Commit and push changes done to the Metadata file
         uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
