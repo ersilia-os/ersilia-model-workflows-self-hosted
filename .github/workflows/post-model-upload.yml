@@ -61,6 +61,7 @@ jobs:
           export COMPUTATIONAL_PERFORMANCE_1=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_1' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_10=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_10' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_100=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_100' $JSON_FILE)
+          echo "IMAGE_SIZE=${IMAGE_SIZE}" >> $GITHUB_ENV
           echo "COMPUTATIONAL_PERFORMANCE_1=${COMPUTATIONAL_PERFORMANCE_1}" >> $GITHUB_ENV
           echo "COMPUTATIONAL_PERFORMANCE_10=${COMPUTATIONAL_PERFORMANCE_10}" >> $GITHUB_ENV
           echo "COMPUTATIONAL_PERFORMANCE_100=${COMPUTATIONAL_PERFORMANCE_100}" >> $GITHUB_ENV
