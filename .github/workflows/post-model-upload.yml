@@ -56,7 +56,8 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          JSON_FILE="./${MODEL_ID}-test-amd64.json"
+          JSON_FILE="./${MODEL_ID}-test-amd64.json"  
+          export IMAGE_SIZE=$(jq -r '.model_size_check.image_size_mb' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_1=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_1' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_10=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_10' $JSON_FILE)
           export COMPUTATIONAL_PERFORMANCE_100=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_100' $JSON_FILE)
@@ -88,6 +89,7 @@ jobs:
             arch = arch.split(',')
           data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
           data['Docker Architecture'] = arch
+          data['Image Size'] = ${{ env.IMAGE_SIZE }}
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
@@ -111,7 +113,6 @@ jobs:
           python3 -c "
           import os
           import json
-          float(os.getenv('DIRECTORY_SIZE_MB'))
           with open('metadata.json', 'r') as f:
             data = json.load(f)
           print(data)
@@ -120,6 +121,7 @@ jobs:
             arch = arch.split(',')
           data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
           data['Docker Architecture'] = arch
+          data['Image Size'] = ${{ env.IMAGE_SIZE }}
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method

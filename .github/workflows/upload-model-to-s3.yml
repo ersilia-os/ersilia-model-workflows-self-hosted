@@ -92,6 +92,8 @@ jobs:
           data['Environment Size'] = float(os.getenv('ENVIRONMENT_SIZE_MB'))
           with open('metadata.json', 'w') as f:
              json.dump(data, f, indent=4)
+          rm model_sizes.txt
+          rm ${{ inputs.repo_name }}-test.json
           "
 
       - name: Update Metadata YAML file with S3 info
@@ -106,6 +108,8 @@ jobs:
           data["Environment Size"] = ${{ env.ENVIRONMENT_SIZE_MB }}
           with open('metadata.yml', 'w') as f:
              yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+          rm model_sizes.txt
+          rm ${{ inputs.repo_name }}-test.json
           "
           
       - name: Commit and push metadata changes
