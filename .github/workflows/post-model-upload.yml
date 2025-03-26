@@ -89,7 +89,7 @@ jobs:
             arch = arch.split(',')
           data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
           data['Docker Architecture'] = arch
-          data['Image Size'] = ${{ env.IMAGE_SIZE }}
+          data['Image Size'] = float(os.getenv('IMAGE_SIZE'))
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
@@ -121,7 +121,7 @@ jobs:
             arch = arch.split(',')
           data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
           data['Docker Architecture'] = arch
-          data['Image Size'] = ${{ env.IMAGE_SIZE }}
+          data['Image Size'] = float(os.getenv('IMAGE_SIZE'))
           with open('pack_method.txt', 'r') as f:
             pack_method = f.read().rstrip()
           data['Docker Pack Method'] = pack_method
