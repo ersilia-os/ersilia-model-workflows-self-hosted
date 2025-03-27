@@ -110,7 +110,7 @@ jobs:
           
       - name: Remove downloaded artifacts
         env:
-        MODEL_ID: ${{ inputs.repo_name }}
+          MODEL_ID: ${{ inputs.repo_name }}
         run: |
           rm -rf model_sizes
           rm -f model_sizes.txt "${MODEL_ID}-test.json"
