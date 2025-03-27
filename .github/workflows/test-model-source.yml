@@ -80,8 +80,8 @@ jobs:
           # Get creation date via GitHub API
           CREATED_AT=$(curl -s "https://api.github.com/repos/$USER_NAME/$REPO_NAME" | jq -r '.created_at')
 
-          # Convert to d/m/Y format
-          INCORP_DATE=$(date -d "$CREATED_AT" +"%-d/%-m/%Y")
+          # Make sure date has correct format
+          INCORP_DATE=$(date -d "$CREATED_AT" +"%Y/%m/%d")
 
           echo "Incorporation Date: $INCORP_DATE"
 

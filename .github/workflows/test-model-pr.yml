@@ -10,11 +10,7 @@ jobs:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
           tool-cache: true
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
@@ -37,26 +33,39 @@ jobs:
           conda run -n base conda install gh -c conda-forge
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
 
-      - name: Fetch model and run #TODO change for test command 
+      - name: Fetch model and run test
         env:
           MODEL_ID: ${{ github.event.repository.name }}
         run: |
           conda run -n base bash -c "
-            ersilia -v fetch $MODEL_ID --from_github &&
-            ersilia serve $MODEL_ID &&
-            ersilia example -f input.csv -n 3 &&
-            ersilia run -i input.csv -o output.csv &&
-            ersilia close &&
-            ersilia delete $MODEL_ID &&
-            head output.csv
+            ersilia -v test $MODEL_ID --shallow --from_dir .
           "
+          cat $MODEL_ID-test.json
           
-      - name: Upload log output
+      - name: Parse test results
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test.json"
+
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+
+          echo "Parsing test results from $TEST_JSON"
+
+          TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
+              if [[ -n "$TEST_FAILED" ]]; then
+                echo "❌ Some tests failed. Stopping workflow."
+                exit 1
+              fi
+
+      - name: Upload files
         if: always()
         uses: actions/upload-artifact@v4.5.0
         with:
-          name: debug-logs
+          name: test-results
           retention-days: 14
           path: |
-            /home/runner/eos/*.log
-            ./*.log
+            ${{ inputs.repo_name }}-test.json
