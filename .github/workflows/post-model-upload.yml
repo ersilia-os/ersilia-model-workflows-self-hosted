@@ -134,10 +134,13 @@ jobs:
           "
 
       - name: Remove downloaded artifacts
+        env:
+          MODEL_ID: ${{ inputs.repo_name }}
         run: |
             rm -rf architecture
             rm -rf pack-method
             rm -rf test-report-amd64
+            rm -f arch.txt pack_method.txt "${MODEL_ID}-test-amd64.json"
           
       - name: Commit and push changes done to the Metadata file
         uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4

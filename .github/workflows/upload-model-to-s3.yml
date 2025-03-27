@@ -109,7 +109,11 @@ jobs:
           "
           
       - name: Remove downloaded artifacts
-        run: rm -rf model_sizes
+        env:
+        MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          rm -rf model_sizes
+          rm -f model_sizes.txt "${MODEL_ID}-test.json"
           
       - name: Commit and push metadata changes
         uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
