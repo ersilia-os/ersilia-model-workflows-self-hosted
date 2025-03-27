@@ -1,6 +1,6 @@
 name: Send Slack message
 on:
-  workflow-call:
+  workflow_call:
     inputs:
       repo_name:
         required: true
