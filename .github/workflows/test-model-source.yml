@@ -81,7 +81,7 @@ jobs:
           CREATED_AT=$(curl -s "https://api.github.com/repos/$USER_NAME/$REPO_NAME" | jq -r '.created_at')
 
           # Make sure date has correct format
-          INCORP_DATE=$(date -d "$CREATED_AT" +"%Y/%m/%d")
+          INCORP_DATE=$(date -d "$CREATED_AT" +"%Y-%m-%d")
 
           echo "Incorporation Date: $INCORP_DATE"
 
