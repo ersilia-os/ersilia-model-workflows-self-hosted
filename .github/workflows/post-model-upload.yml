@@ -143,7 +143,7 @@ jobs:
             rm -f arch.txt pack_method.txt "${MODEL_ID}-test-amd64.json"
           
       - name: Commit and push changes done to the Metadata file
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master # pin@v1.4
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"
@@ -208,7 +208,7 @@ jobs:
           less README.md
 
       - name: Commit and push changes done to the README file
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master # pin@v1.4
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"

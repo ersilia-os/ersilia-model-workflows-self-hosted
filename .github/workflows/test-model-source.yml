@@ -146,7 +146,7 @@ jobs:
             rm readme_formatter.py
 
       - name: Commit and push changes done to the Metadata file
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"
@@ -181,7 +181,7 @@ jobs:
           "
 
       - name: Commit and push changes done to the README file
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"

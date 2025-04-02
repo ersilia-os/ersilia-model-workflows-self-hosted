@@ -116,7 +116,7 @@ jobs:
           rm -f model_sizes.txt "${MODEL_ID}-test.json"
           
       - name: Commit and push metadata changes
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"
@@ -163,7 +163,7 @@ jobs:
           less README.md
 
       - name: Commit and push README changes
-        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772 # pin@v1.4
+        uses: actions-js/push@master
         with:
           author_name: "ersilia-bot"
           author_email: "ersilia-bot@users.noreply.github.com"
