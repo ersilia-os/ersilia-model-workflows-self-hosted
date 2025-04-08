@@ -16,6 +16,6 @@ elif file_name.endswith(".yaml") or file_name.endswith(".yml"):
         data = yaml.safe_load(f)
     data['Incorporation Date'] = date_str
     with open(file_name, 'w') as f:
-        yaml.dump(data, f, sort_keys=False)
+        yaml.dump(data, f, sort_keys=False, default_flow_style=False)
 else:
     raise ValueError("Unsupported file format. Please provide a .json or .yaml file.")
