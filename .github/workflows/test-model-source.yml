@@ -85,13 +85,14 @@ jobs:
 
           wget -O add_date.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_date.py
           python add_date.py $METADATA_FILE "$INCORP_DATE"
-
           cat $METADATA_FILE
+          rm add_date.py
 
       - name: Decide metadata update to/from Airtable
         run: |
           wget -O check_output_consistency.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/check_output_consistency.py
           output_consistency=$(python check_output_consistency.py "$METADATA_FILE")
+          rm check_output_consistency.py
 
           if [ -n "$output_consistency" ]; then
             echo "'Output Consistency' exists and has value: $output_consistency"
