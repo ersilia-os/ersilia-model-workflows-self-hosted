@@ -83,19 +83,13 @@ jobs:
 
           echo "Incorporation Date: $INCORP_DATE"
 
-          # Getting add_date.py file
           wget -O add_date.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_date.py
-          
-          # Writing incorporation date
           python add_date.py $METADATA_FILE "$INCORP_DATE"
 
       - name: Decide metadata update to/from Airtable
         run: |
-          if [[ "$METADATA_FILE" == "metadata.json" ]]; then
-            output_consistency=$(jq -r '.["Output Consistency"] // empty' "$METADATA_FILE")
-          elif [[ "$METADATA_FILE" == "metadata.yml" ]]; then
-            output_consistency=$(yq e '.["Output Consistency"] // ""' "$METADATA_FILE")
-          fi
+          wget -O check_output_consistency.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/check_output_consistency.py
+          output_consistency=$(python check_output_consistency.py "$METADATA_FILE")
 
           if [ -n "$output_consistency" ]; then
             echo "'Output Consistency' exists and has value: $output_consistency"
