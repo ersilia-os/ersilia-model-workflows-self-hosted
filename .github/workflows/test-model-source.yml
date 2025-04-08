@@ -47,12 +47,10 @@ jobs:
           conda run -n base git-lfs install
           conda run -n base conda install gh -c conda-forge
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
-
-      - name: Install jq and yq
+          
+      - name: Install pyaml
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-          sudo snap install yq
+          pip install pyaml
 
       - name: Select correct metadata file
         run: |
@@ -84,18 +82,7 @@ jobs:
           INCORP_DATE=$(date -d "$CREATED_AT" +"%Y-%m-%d")
 
           echo "Incorporation Date: $INCORP_DATE"
-
-          # Detect file type
-          EXT="${METADATA_FILE##*.}"
-
-          if [[ "$EXT" == "json" ]]; then
-            jq --arg date "$INCORP_DATE" '.["Incorporation Date"] = $date' "$METADATA_FILE" > tmp && mv tmp "$METADATA_FILE"
-          elif [[ "$EXT" == "yml" || "$EXT" == "yaml" ]]; then
-              yq eval -i '.["Incorporation Date"] = "'$INCORP_DATE'"' "$METADATA_FILE"
-          else
-            echo "❌ Unsupported metadata file type: $METADATA_FILE"
-            exit 1
-          fi
+          python .github/scripts/add_date.py $METADATA_FILE "$INCORP_DATE"
 
       - name: Decide metadata update to/from Airtable
         run: |
