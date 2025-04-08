@@ -91,7 +91,7 @@ jobs:
           if [[ "$EXT" == "json" ]]; then
             jq --arg date "$INCORP_DATE" '.["Incorporation Date"] = $date' "$METADATA_FILE" > tmp && mv tmp "$METADATA_FILE"
           elif [[ "$EXT" == "yml" || "$EXT" == "yaml" ]]; then
-            yq -i ".\"Incorporation Date\" = \"$INCORP_DATE\"" "$METADATA_FILE"
+              yq eval -i '.["Incorporation Date"] = "'$INCORP_DATE'"' "$METADATA_FILE"
           else
             echo "❌ Unsupported metadata file type: $METADATA_FILE"
             exit 1
