@@ -82,7 +82,12 @@ jobs:
           INCORP_DATE=$(date -d "$CREATED_AT" +"%Y-%m-%d")
 
           echo "Incorporation Date: $INCORP_DATE"
-          python .github/scripts/add_date.py $METADATA_FILE "$INCORP_DATE"
+
+          # Getting add_date.py file
+          wget -O add_date.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_date.py
+          
+          # Writing incorporation date
+          python add_date.py $METADATA_FILE "$INCORP_DATE"
 
       - name: Decide metadata update to/from Airtable
         run: |
