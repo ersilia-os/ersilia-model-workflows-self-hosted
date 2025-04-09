@@ -2,6 +2,7 @@ import sys
 import json
 import collections
 from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap
 
 file_name = sys.argv[1]
 date_str = sys.argv[2]
@@ -55,7 +56,7 @@ new_order = [
     'Computational Performance 100'
 ]
 
-def sort_dictionary(data):
+def sort_dictionary_json(data):
     data_ = collections.OrderedDict()
     for k in new_order:
         if k in data:
@@ -65,11 +66,21 @@ def sort_dictionary(data):
             data_[k] = v
     return data_
 
+def sort_dictionary_yml(data):
+    data_ = CommentedMap()
+    for k in new_order:
+        if k in data:
+            data_[k] = data.pop(k)
+    for k,v in data.items():
+        if k not in new_order:
+            data_[k] = v
+    return data_
+
 if file_name.endswith(".json"):
     with open(file_name, 'r') as f:
         data = json.load(f)
     data['Incorporation Date'] = date_str
-    data = sort_dictionary(data)       
+    data = sort_dictionary_json(data)       
     with open(file_name, 'w') as f:
         json.dump(data, f, indent=4)
 elif file_name.endswith(".yaml") or file_name.endswith(".yml"):
@@ -78,7 +89,7 @@ elif file_name.endswith(".yaml") or file_name.endswith(".yml"):
     with open(file_name, 'r') as f:
         data = yaml.load(f)
     data['Incorporation Date'] = date_str
-    data = sort_dictionary(data)
+    data = sort_dictionary_yml(data)
     with open(file_name, 'w') as f:
         yaml.dump(data, f)
 else:
