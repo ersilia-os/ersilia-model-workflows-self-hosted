@@ -13,6 +13,7 @@ if file_name.endswith(".json"):
         json.dump(data, f, indent=4)
 elif file_name.endswith(".yaml") or file_name.endswith(".yml"):
     yaml = YAML()
+    yaml.indent(mapping=2, sequence=4, offset=2)
     with open(file_name, 'r') as f:
         data = yaml.load(f)
     data['Incorporation Date'] = date_str
