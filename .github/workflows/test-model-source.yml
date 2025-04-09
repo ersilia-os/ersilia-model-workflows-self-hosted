@@ -48,9 +48,10 @@ jobs:
           conda run -n base conda install gh -c conda-forge
           conda run -n base python -m pip install 'git+https://github.com/ersilia-os/ersilia.git#egg=ersilia[test]'
           
-      - name: Install pyaml
+      - name: Install pyaml and ruamel.yaml
         run: |
           pip install pyaml
+          pip install ruamel.yaml
 
       - name: Select correct metadata file
         run: |
