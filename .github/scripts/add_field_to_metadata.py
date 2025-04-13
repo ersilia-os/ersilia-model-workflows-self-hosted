@@ -36,7 +36,23 @@ def _serialize(x):
     except:
         return x
     
+def _serialize_to_list_if_necessary(x):
+    if type(x) is list or type(x) is tuple:
+        return list(x)
+    x = x.replace("'", "")
+    x = x.replace('"', '')
+    x = str(x).rstrip("\n")
+    if x.startswith("[") and x.endswith("]"):
+        pass
+    elif x.startswith("(") and x.endswith(")"):
+        pass
+    else:
+        return x
+    x = [x_.strip(" ") for x_ in x[1:-1].split(",")]
+    return x
+
 def serialize(x):
+    x = _serialize_to_list_if_necessary(x)
     if type(x) is list:
         return [_serialize(x_) for x_ in x]
     else:
