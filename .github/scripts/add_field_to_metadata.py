@@ -39,6 +39,7 @@ def _serialize(x):
 def _serialize_to_list_if_necessary(x):
     if type(x) is list or type(x) is tuple:
         return list(x)
+    x = str(x)
     x = x.replace("'", "")
     x = x.replace('"', '')
     x = str(x).rstrip("\n")
