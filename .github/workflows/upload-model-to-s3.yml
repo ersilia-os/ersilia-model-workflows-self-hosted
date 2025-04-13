@@ -67,46 +67,31 @@ jobs:
           echo "ENVIRONMENT_SIZE_MB=$ENV_SIZE" >> $GITHUB_ENV
           echo "DIRECTORY_SIZE_MB=$DIR_SIZE" >> $GITHUB_ENV
 
-      - name: Check metadata file
-        id: checkMetadata
-        continue-on-error: true
+      - name: Install pyaml and ruamel.yaml
         run: |
-          if [[ ! -f metadata.yml ]]; then
-            echo "metadata.yml file not found"
-            exit 1
-          fi
+          pip install pyaml
+          pip install ruamel.yaml
 
-      - name: Update Metadata JSON file with S3 info
-        if: steps.checkMetadata.outcome == 'failure'
+      - name: Update metadata fields
         env:
+          MODEL_ID: ${{ github.event.repository.name }}
           DIRECTORY_SIZE_MB: ${{ env.DIRECTORY_SIZE_MB }}
           ENVIRONMENT_SIZE_MB: ${{ env.ENVIRONMENT_SIZE_MB }}
         run: |
-          python3 -c "
-          import json
-          import os
-          with open('metadata.json', 'r') as f:
-             data = json.load(f)
-          data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
-          data['Model Size'] = float(os.getenv('DIRECTORY_SIZE_MB'))
-          data['Environment Size'] = float(os.getenv('ENVIRONMENT_SIZE_MB'))
-          with open('metadata.json', 'w') as f:
-             json.dump(data, f, indent=4)
-          "
+          if [[ -f metadata.yml ]]; then
+            METADATA_FILE="metadata.yml"
+          else
+            METADATA_FILE="metadata.json"
+          fi
 
-      - name: Update Metadata YAML file with S3 info
-        if: steps.checkMetadata.outcome == 'success'
-        run: |
-          python3 -c "
-          import yaml
-          with open('metadata.yml', 'r') as f:
-             data = yaml.safe_load(f)
-          data['S3'] = 'https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/{0}.zip'.format(data['Identifier'])
-          data["Model Size"] = ${{ env.DIRECTORY_SIZE_MB }}
-          data["Environment Size"] = ${{ env.ENVIRONMENT_SIZE_MB }}
-          with open('metadata.yml', 'w') as f:
-             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-          "
+          wget -O add_field_to_metadata.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_field_to_metadata.py
+
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "S3" --content "https://ersilia-models-zipped.s3.eu-central-1.amazonaws.com/${MODEL_ID}.zip"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Model Size" --content "$DIRECTORY_SIZE_MB"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Environment Size" --content "$ENVIRONMENT_SIZE_MB"
+
+          cat "$METADATA_FILE"
+          rm add_field_to_metadata.py
           
       - name: Remove downloaded artifacts
         env:
