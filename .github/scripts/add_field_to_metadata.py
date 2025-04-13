@@ -14,12 +14,14 @@ args = parser.parse_args()
 
 file_name = args.metadata_file
 field = args.field
-content = args.content
+content = str(args.content)
 
-if os.path.exists(content):
-    with open(content, "r") as f:
-        content = f.read().rstrip()
-        content = content.split(',')
+if "." in content:
+    if os.path.exists(content):
+        with open(content, "r") as f:
+            content = f.read().rstrip()
+            if "," in content:
+                content = content.split(',')
 
 def _serialize(x):
     x = str(x)

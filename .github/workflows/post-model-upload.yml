@@ -67,71 +67,37 @@ jobs:
           echo "COMPUTATIONAL_PERFORMANCE_100=${COMPUTATIONAL_PERFORMANCE_100}" >> $GITHUB_ENV
           cat $JSON_FILE
 
-      - name: Check metadata file
-        id: checkMetadata
-        continue-on-error: true
+      - name: Install pyaml and ruamel.yaml
         run: |
-          if [[ ! -f metadata.yml ]]; then
-            echo "metadata.yml file not found"
-            exit 1
-          fi
+          pip install pyaml
+          pip install ruamel.yaml
 
-      - name: Update Metadata YAML file with DockerHub info
-        id: updateMetadataYAML
-        if: steps.checkMetadata.outcome == 'success'
-        run: |
-          python3 -c "
-          import yaml
-          with open('metadata.yml', 'r') as f:
-            data = yaml.safe_load(f)
-          print(data)
-          with open('arch.txt', 'r') as f:
-            arch = f.read().rstrip()
-            arch = arch.split(',')
-          data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
-          data['Docker Architecture'] = arch
-          data['Image Size'] = float(os.getenv('IMAGE_SIZE'))
-          with open('pack_method.txt', 'r') as f:
-            pack_method = f.read().rstrip()
-          data['Docker Pack Method'] = pack_method
-          data['Computational Performance 1'] = ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
-          data['Computational Performance 10'] = ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
-          data['Computational Performance 100'] = ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
-          with open('metadata.yml', 'w') as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-          "
-          rm arch.txt
-          rm pack_method.txt
-
-      - name: Update Metadata JSON file with DockerHub info
-        id: updateMetadataJSON
-        if: steps.checkMetadata.outcome == 'failure'
+      - name: Update metadata fields
         env:
+          MODEL_ID: ${{ github.event.repository.name }}
+          IMAGE_SIZE: ${{ env.IMAGE_SIZE }}
           COMPUTATIONAL_PERFORMANCE_1: ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
           COMPUTATIONAL_PERFORMANCE_10: ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
           COMPUTATIONAL_PERFORMANCE_100: ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
         run: |
-          python3 -c "
-          import os
-          import json
-          with open('metadata.json', 'r') as f:
-            data = json.load(f)
-          print(data)
-          with open('arch.txt', 'r') as f:
-            arch = f.read().rstrip()
-            arch = arch.split(',')
-          data['DockerHub'] = 'https://hub.docker.com/r/ersiliaos/{0}'.format(data['Identifier'])
-          data['Docker Architecture'] = arch
-          data['Image Size'] = float(os.getenv('IMAGE_SIZE'))
-          with open('pack_method.txt', 'r') as f:
-            pack_method = f.read().rstrip()
-          data['Docker Pack Method'] = pack_method
-          data['Computational Performance 1'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_1'))
-          data['Computational Performance 10'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_10'))
-          data['Computational Performance 100'] = float(os.getenv('COMPUTATIONAL_PERFORMANCE_100'))
-          with open('metadata.json', 'w') as f:
-            json.dump(data, f, indent=4)
-          "
+          if [[ -f metadata.yml ]]; then
+            METADATA_FILE="metadata.yml"
+          else
+            METADATA_FILE="metadata.json"
+          fi
+
+          wget -O add_field_to_metadata.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_field_to_metadata.py
+
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "DockerHub" --content "https://hub.docker.com/r/ersiliaos/${MODEL_ID}"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Pack Method" --content pack_method.txt
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Image Size" --content "$IMAGE_SIZE"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 1" --content "$COMPUTATIONAL_PERFORMANCE_1"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 10" --content "$COMPUTATIONAL_PERFORMANCE_10"
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 100" --content "$COMPUTATIONAL_PERFORMANCE_100"
+
+          cat "$METADATA_FILE"
+          rm add_field_to_metadata.py
 
       - name: Remove downloaded artifacts
         env:
