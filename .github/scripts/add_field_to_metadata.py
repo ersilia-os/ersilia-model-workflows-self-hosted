@@ -34,9 +34,6 @@ def _serialize(x):
         else:
             return num
     except:
-        if file_name.endswith(".yml"):
-            if "-" in x:
-                return '"{0}"'.format(x)
         return x
     
 def serialize(x):
