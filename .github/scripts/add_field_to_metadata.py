@@ -100,20 +100,20 @@ def sort_dictionary_json(data):
     data_ = collections.OrderedDict()
     for k in new_order:
         if k in data:
-            data_[k] = data[k]
+            data_[k] = serialize(data[k])
     for k,v in data.items():
         if k not in new_order:
-            data_[k] = v
+            data_[k] = serialize(v)
     return data_
 
 def sort_dictionary_yml(data):
     data_ = CommentedMap()
     for k in new_order:
         if k in data:
-            data_[k] = data.pop(k)
+            data_[k] = serialize(data.pop(k))
     for k,v in data.items():
         if k not in new_order:
-            data_[k] = v
+            data_[k] = serialize(v)
     return data_
 
 if file_name.endswith(".json"):
