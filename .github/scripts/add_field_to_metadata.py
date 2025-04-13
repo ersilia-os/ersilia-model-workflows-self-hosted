@@ -1,3 +1,4 @@
+import os
 import json
 import collections
 import argparse
@@ -14,6 +15,35 @@ args = parser.parse_args()
 file_name = args.metadata_file
 field = args.field
 content = args.content
+
+if os.path.exists(content):
+    with open(content, "r") as f:
+        content = f.read().rstrip()
+        content = content.split(',')
+
+def _serialize(x):
+    x = str(x)
+    x = x.replace("'", "")
+    x = x.replace('"', '')
+    try:
+        num = float(x)
+        if num.is_integer():
+            return int(num)
+        else:
+            return num
+    except:
+        if file_name.endswith(".yml"):
+            if "-" in x:
+                return '"{0}"'.format(x)
+        return x
+    
+def serialize(x):
+    if type(x) is list:
+        return [_serialize(x_) for x_ in x]
+    else:
+        return _serialize(x)
+
+content = serialize(content)
 
 new_order = [
     'Identifier',
