@@ -1,11 +1,19 @@
-import sys
 import json
 import collections
+import argparse
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
-file_name = sys.argv[1]
-date_str = sys.argv[2]
+parser = argparse.ArgumentParser(description="Process a file and a date string.")
+parser.add_argument("--metadata_file", type=str, help="Path to the metadta file")
+parser.add_argument("--field", type=str, help="Field of interest")
+parser.add_argument("--content", type=str, help="Content to be incorporated")
+
+args = parser.parse_args()
+
+file_name = args.metadata_file
+field = args.field
+content = args.content
 
 new_order = [
     'Identifier',
@@ -56,6 +64,9 @@ new_order = [
     'Computational Performance 100'
 ]
 
+if field not in new_order:
+    raise Exception("The field" + field + "is not part of the accepted metadata fields")
+
 def sort_dictionary_json(data):
     data_ = collections.OrderedDict()
     for k in new_order:
@@ -79,7 +90,7 @@ def sort_dictionary_yml(data):
 if file_name.endswith(".json"):
     with open(file_name, 'r') as f:
         data = json.load(f)
-    data['Incorporation Date'] = date_str
+    data[field] = content
     data = sort_dictionary_json(data)       
     with open(file_name, 'w') as f:
         json.dump(data, f, indent=4)
@@ -88,7 +99,7 @@ elif file_name.endswith(".yaml") or file_name.endswith(".yml"):
     yaml.indent(mapping=2, sequence=4, offset=2)
     with open(file_name, 'r') as f:
         data = yaml.load(f)
-    data['Incorporation Date'] = date_str
+    data[field] = content
     data = sort_dictionary_yml(data)
     with open(file_name, 'w') as f:
         yaml.dump(data, f)
