@@ -29,7 +29,7 @@ def _serialize(x):
     x = x.replace('"', '')
     try:
         num = float(x)
-        if num.is_integer():
+        if "." not in x:
             return int(num)
         else:
             return num
