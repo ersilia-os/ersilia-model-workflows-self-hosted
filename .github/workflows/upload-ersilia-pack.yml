@@ -142,6 +142,13 @@ jobs:
     needs: [build-ersilia-pack-image-amd64, build-ersilia-pack-image-arm64]
     runs-on: ubuntu-latest
     steps:
+      - name: Check build results and fail if both failed
+        run: |
+          echo "Checking build results..."
+          if [ "${{ needs.build-ersilia-pack-image-amd64.result }}" != "success" ] && [ "${{ needs.build-ersilia-pack-image-arm64.result }}" != "success" ]; then
+            echo "Both amd64 and arm64 builds failed or were skipped. Failing job."
+            exit 1
+          fi
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
@@ -167,12 +174,6 @@ jobs:
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
-
-      - name: Fail merge job if both builds failed or were skipped
-        if: ${{ needs.build-ersilia-pack-image-amd64.result != 'success' && needs.build-ersilia-pack-image-arm64.result != 'success' }}
-        run: |
-          echo "Both amd64 and arm64 builds failed or were skipped. Exiting with failure."
-          exit 1
 
       - name: Save pack method
         if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
