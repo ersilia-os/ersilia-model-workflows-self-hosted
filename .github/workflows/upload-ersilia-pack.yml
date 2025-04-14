@@ -140,7 +140,6 @@ jobs:
   merge-multiarch:
     needs: [build-ersilia-pack-image-amd64, build-ersilia-pack-image-arm64]
     runs-on: ubuntu-latest
-    if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
     steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -168,6 +167,12 @@ jobs:
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
+          
+      - name: Fail merge job if both builds failed
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'failure' && needs.build-ersilia-pack-image-arm64.result == 'failure' }}
+        run: |
+          echo "Both amd64 and arm64 builds failed. Exiting with failure."
+          exit 1
 
       - name: Save pack method
         run: echo "FastAPI" > pack_method.txt
