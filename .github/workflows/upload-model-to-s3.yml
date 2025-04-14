@@ -29,6 +29,9 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           lfs: 'true'
+      - name: Pull with rebase
+        run: |
+          git pull --rebase origin main
 
       - name: Setup Conda and Python
         uses: conda-incubator/setup-miniconda@v3
