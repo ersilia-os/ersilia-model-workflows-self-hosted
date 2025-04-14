@@ -138,6 +138,7 @@ jobs:
           tags: ersiliaos/${{ inputs.repo_name }}:dev-arm64
 
   merge-multiarch:
+    if: always()  # <-- this ensures the job runs even if needs.* fail
     needs: [build-ersilia-pack-image-amd64, build-ersilia-pack-image-arm64]
     runs-on: ubuntu-latest
     steps:
@@ -148,7 +149,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Create multi-arch manifest if both images created
-        id: check_images
         if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' && needs.build-ersilia-pack-image-arm64.result == 'success' }}
         run: |
           docker buildx imagetools create \
@@ -157,27 +157,29 @@ jobs:
             ersiliaos/${{ inputs.repo_name }}:dev-arm64
 
       - name: Rename amd64 to dev if only amd64 exists
-        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' && needs.build-ersilia-pack-image-arm64.result == 'failure' }}
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' && needs.build-ersilia-pack-image-arm64.result != 'success' }}
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-amd64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
 
       - name: Rename arm64 to dev if only arm64 exists
-        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'failure' && needs.build-ersilia-pack-image-arm64.result == 'success' }}
+        if: ${{ needs.build-ersilia-pack-image-amd64.result != 'success' && needs.build-ersilia-pack-image-arm64.result == 'success' }}
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
-          
-      - name: Fail merge job if both builds failed
-        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'failure' && needs.build-ersilia-pack-image-arm64.result == 'failure' }}
+
+      - name: Fail merge job if both builds failed or were skipped
+        if: ${{ needs.build-ersilia-pack-image-amd64.result != 'success' && needs.build-ersilia-pack-image-arm64.result != 'success' }}
         run: |
-          echo "Both amd64 and arm64 builds failed. Exiting with failure."
+          echo "Both amd64 and arm64 builds failed or were skipped. Exiting with failure."
           exit 1
 
       - name: Save pack method
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
         run: echo "FastAPI" > pack_method.txt
 
       - name: Upload pack method artifact
+        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
         uses: actions/upload-artifact@v4.5.0
         with:
           name: pack-method
