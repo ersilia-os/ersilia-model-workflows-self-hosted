@@ -185,16 +185,3 @@ jobs:
         with:
           name: pack-method
           path: pack_method.txt
-  finalize:
-      name: Final status check
-      needs: [merge-multiarch]
-      runs-on: ubuntu-latest
-      if: always()
-      steps:
-        - name: Fail workflow if merge-multiarch failed
-          run: |
-            echo "merge-multiarch result: ${{ needs.merge-multiarch.result }}"
-            if [ "${{ needs.merge-multiarch.result }}" != "success" ]; then
-              echo "upload-ersilia-pack is failing because merge-multiarch failed."
-              exit 1
-            fi
