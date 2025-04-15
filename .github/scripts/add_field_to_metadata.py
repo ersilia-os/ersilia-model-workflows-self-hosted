@@ -105,8 +105,12 @@ new_order = [
     'Model Size',
     'Environment Size',
     'Image Size',
-    'Computational Performance 1',
-    'Computational Performance 10',
+    'Computational Performance 4',
+    'Computational Performance 7',
+    'Computational Performance 12',
+    'Computational Performance 20',
+    'Computational Performance 34',
+    'Computational Performance 58',
     'Computational Performance 100'
 ]
 
