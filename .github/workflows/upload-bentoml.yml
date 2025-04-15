@@ -76,8 +76,7 @@ jobs:
           REPO_NAME: ${{ inputs.repo_name }}
           VERSION: ${{ inputs.version }}
         run: |
-          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/place_a_dockerfile_in_current_eos_repo.py
-          python -m pip install requests
+          wget -O place_a_dockerfile_in_current_eos_repo.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/place_a_dockerfile_in_current_eos_repo.py          python -m pip install requests
           python place_a_dockerfile_in_current_eos_repo.py $REPO_NAME $VERSION
           rm place_a_dockerfile_in_current_eos_repo.py
 
@@ -151,7 +150,7 @@ jobs:
           REPO_NAME: ${{ inputs.repo_name }}
           VERSION: ${{ inputs.version }}
         run: |
-          wget https://raw.githubusercontent.com/ersilia-os/ersilia/master/.github/scripts/place_a_dockerfile_in_current_eos_repo.py
+          wget -O place_a_dockerfile_in_current_eos_repo.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/place_a_dockerfile_in_current_eos_repo.py
           python -m pip install requests
           python place_a_dockerfile_in_current_eos_repo.py $REPO_NAME $VERSION
           rm place_a_dockerfile_in_current_eos_repo.py
