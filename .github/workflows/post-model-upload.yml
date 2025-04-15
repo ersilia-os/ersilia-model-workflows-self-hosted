@@ -58,13 +58,13 @@ jobs:
         run: |
           JSON_FILE="./${MODEL_ID}-test-amd64.json"  
           export IMAGE_SIZE=$(jq -r '.model_size_check.image_size_mb' $JSON_FILE)
-          export COMPUTATIONAL_PERFORMANCE_1=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_1' $JSON_FILE)
-          export COMPUTATIONAL_PERFORMANCE_10=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_10' $JSON_FILE)
-          export COMPUTATIONAL_PERFORMANCE_100=$(jq -r '.computational_performance_summary.computational_performance_tracking_details.pred_100' $JSON_FILE)
           echo "IMAGE_SIZE=${IMAGE_SIZE}" >> $GITHUB_ENV
-          echo "COMPUTATIONAL_PERFORMANCE_1=${COMPUTATIONAL_PERFORMANCE_1}" >> $GITHUB_ENV
-          echo "COMPUTATIONAL_PERFORMANCE_10=${COMPUTATIONAL_PERFORMANCE_10}" >> $GITHUB_ENV
-          echo "COMPUTATIONAL_PERFORMANCE_100=${COMPUTATIONAL_PERFORMANCE_100}" >> $GITHUB_ENV
+          for i in 1 4 7 12 20 34 58 100; do
+            VALUE=$(jq -r ".computational_performance_summary.computational_performance_tracking_details.pred_${i}" $JSON_FILE)
+            export COMPUTATIONAL_PERFORMANCE_${i}="$VALUE"
+            echo "COMPUTATIONAL_PERFORMANCE_${i}=${VALUE}" >> $GITHUB_ENV
+          done
+          
           cat $JSON_FILE
 
       - name: Install pyaml and ruamel.yaml
@@ -77,7 +77,12 @@ jobs:
           MODEL_ID: ${{ github.event.repository.name }}
           IMAGE_SIZE: ${{ env.IMAGE_SIZE }}
           COMPUTATIONAL_PERFORMANCE_1: ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
-          COMPUTATIONAL_PERFORMANCE_10: ${{ env.COMPUTATIONAL_PERFORMANCE_10 }}
+          COMPUTATIONAL_PERFORMANCE_4: ${{ env.COMPUTATIONAL_PERFORMANCE_4 }}
+          COMPUTATIONAL_PERFORMANCE_7: ${{ env.COMPUTATIONAL_PERFORMANCE_7 }}
+          COMPUTATIONAL_PERFORMANCE_12: ${{ env.COMPUTATIONAL_PERFORMANCE_12 }}
+          COMPUTATIONAL_PERFORMANCE_20: ${{ env.COMPUTATIONAL_PERFORMANCE_20 }}
+          COMPUTATIONAL_PERFORMANCE_34: ${{ env.COMPUTATIONAL_PERFORMANCE_34 }}
+          COMPUTATIONAL_PERFORMANCE_58: ${{ env.COMPUTATIONAL_PERFORMANCE_58 }}
           COMPUTATIONAL_PERFORMANCE_100: ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
         run: |
           if [[ -f metadata.yml ]]; then
@@ -92,9 +97,11 @@ jobs:
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Pack Method" --content pack_method.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Image Size" --content "$IMAGE_SIZE"
-          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 1" --content "$COMPUTATIONAL_PERFORMANCE_1"
-          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 10" --content "$COMPUTATIONAL_PERFORMANCE_10"
-          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Computational Performance 100" --content "$COMPUTATIONAL_PERFORMANCE_100"
+          for i in 1 4 7 12 20 34 58 100; do
+            FIELD_NAME="Computational Performance ${i}"
+            VALUE_VAR="COMPUTATIONAL_PERFORMANCE_${i}"
+            python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "$FIELD_NAME" --content "${!VALUE_VAR}"
+          done
 
           cat "$METADATA_FILE"
           rm add_field_to_metadata.py
