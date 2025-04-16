@@ -59,7 +59,7 @@ jobs:
           JSON_FILE="./${MODEL_ID}-test-amd64.json"  
           export IMAGE_SIZE=$(jq -r '.model_size_check.image_size_mb' $JSON_FILE)
           echo "IMAGE_SIZE=${IMAGE_SIZE}" >> $GITHUB_ENV
-          for i in 1 4 7 12 20 34 58 100; do
+          for i in 4 7 12 20 34 58 100; do
             VALUE=$(jq -r ".computational_performance_summary.computational_performance_tracking_details.pred_${i}" $JSON_FILE)
             export COMPUTATIONAL_PERFORMANCE_${i}="$VALUE"
             echo "COMPUTATIONAL_PERFORMANCE_${i}=${VALUE}" >> $GITHUB_ENV
@@ -76,7 +76,6 @@ jobs:
         env:
           MODEL_ID: ${{ github.event.repository.name }}
           IMAGE_SIZE: ${{ env.IMAGE_SIZE }}
-          COMPUTATIONAL_PERFORMANCE_1: ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
           COMPUTATIONAL_PERFORMANCE_4: ${{ env.COMPUTATIONAL_PERFORMANCE_4 }}
           COMPUTATIONAL_PERFORMANCE_7: ${{ env.COMPUTATIONAL_PERFORMANCE_7 }}
           COMPUTATIONAL_PERFORMANCE_12: ${{ env.COMPUTATIONAL_PERFORMANCE_12 }}
@@ -97,7 +96,7 @@ jobs:
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Pack Method" --content pack_method.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Image Size" --content "$IMAGE_SIZE"
-          for i in 1 4 7 12 20 34 58 100; do
+          for i in 4 7 12 20 34 58 100; do
             FIELD_NAME="Computational Performance ${i}"
             VALUE_VAR="COMPUTATIONAL_PERFORMANCE_${i}"
             python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "$FIELD_NAME" --content "${!VALUE_VAR}"
