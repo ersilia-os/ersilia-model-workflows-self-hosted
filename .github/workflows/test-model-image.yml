@@ -39,10 +39,22 @@ jobs:
             ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-amd64
           "
       
-      - name: Upload logs as artifacts
-        uses: actions/upload-artifact@v4
+      - name: Rename test results JSON
         env:
           MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test.json"
+
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+
+          mv "$TEST_JSON" "${MODEL_ID}-test-amd64.json"
+          echo "TEST_JSON_AMD64=${MODEL_ID}-test-amd64.json" >> "$GITHUB_ENV"
+
+      - name: Upload logs as artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: test-report-amd64
           path: ${{ env.TEST_JSON_AMD64 }}
@@ -51,22 +63,14 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          TEST_JSON="${MODEL_ID}-test.json"
-          
-          if [[ ! -f "$TEST_JSON" ]]; then
-            echo "Error: Test results file $TEST_JSON not found!"
-            exit 1
-          fi
-          mv "${MODEL_ID}-test.json" "${MODEL_ID}-test-amd64.json"
           TEST_JSON="${MODEL_ID}-test-amd64.json"
-          echo "TEST_JSON_AMD64=$TEST_JSON" >> "$GITHUB_ENV"
           echo "Parsing test results from $TEST_JSON"
 
           TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
-              if [[ -n "$TEST_FAILED" ]]; then
-                echo "❌ Some tests failed. Stopping workflow."
-                exit 1
-              fi
+          if [[ -n "$TEST_FAILED" ]]; then
+            echo "❌ Some tests failed. Stopping workflow."
+            exit 1
+          fi
 
   test-image-arm64:
     runs-on: default-linux-arm64
@@ -96,10 +100,22 @@ jobs:
             ersilia -v test $MODEL_ID --deep --from_dockerhub --version dev-arm64
           "
 
-      - name: Upload logs as artifacts
-        uses: actions/upload-artifact@v4
+      - name: Rename test results JSON
         env:
           MODEL_ID: ${{ inputs.repo_name }}
+        run: |
+          TEST_JSON="${MODEL_ID}-test.json"
+
+          if [[ ! -f "$TEST_JSON" ]]; then
+            echo "Error: Test results file $TEST_JSON not found!"
+            exit 1
+          fi
+
+          mv "$TEST_JSON" "${MODEL_ID}-test-arm64.json"
+          echo "TEST_JSON_ARM64=${MODEL_ID}-test-arm64.json" >> "$GITHUB_ENV"
+
+      - name: Upload logs as artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: test-report-arm64
           path: ${{ env.TEST_JSON_ARM64 }}
@@ -108,22 +124,14 @@ jobs:
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
-          TEST_JSON="${MODEL_ID}-test.json"
-          
-          if [[ ! -f "$TEST_JSON" ]]; then
-            echo "Error: Test results file $TEST_JSON not found!"
-            exit 1
-          fi
-          mv "${MODEL_ID}-test.json" "${MODEL_ID}-test-arm64.json"
           TEST_JSON="${MODEL_ID}-test-arm64.json"
-          echo "TEST_JSON_ARM64=$TEST_JSON" >> "$GITHUB_ENV"
           echo "Parsing test results from $TEST_JSON"
 
           TEST_FAILED=$(jq 'recurse | objects | select(map(select(. == false)) | length > 0)' "$TEST_JSON")
-              if [[ -n "$TEST_FAILED" ]]; then
-                echo "❌ Some tests failed. Stopping workflow."
-                exit 1
-              fi
+          if [[ -n "$TEST_FAILED" ]]; then
+            echo "❌ Some tests failed. Stopping workflow."
+            exit 1
+          fi
       
   retag-image:
     runs-on: ubuntu-latest
