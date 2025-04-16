@@ -5,7 +5,7 @@ on:
     outputs:
       job-three-success:
         description: "Whether job-three succeeded"
-        value: ${{ jobs.job-three.conclusion == 'success' }}
+        value: ${{ jobs.job-three.outcome == 'success' }}
 jobs:
   job-one:
     runs-on: ubuntu-latest
