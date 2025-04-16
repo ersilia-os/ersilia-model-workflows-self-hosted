@@ -91,7 +91,7 @@ jobs:
           fi
 
           wget -O add_field_to_metadata.py https://raw.githubusercontent.com/ersilia-os/ersilia-model-workflows/main/.github/scripts/add_field_to_metadata.py
-
+          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Status" --content "Ready"
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "DockerHub" --content "https://hub.docker.com/r/ersiliaos/${MODEL_ID}"
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Pack Method" --content pack_method.txt
