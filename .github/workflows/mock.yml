@@ -5,7 +5,7 @@ on:
     outputs:
       job-three-success:
         description: "Whether job-three succeeded"
-        value: ${{ steps.output-step.outputs.message == 'true' }}
+        value: ${{ jobs.job-three.outputs.status }}
 jobs:
   job-one:
     runs-on: ubuntu-latest
@@ -27,9 +27,8 @@ jobs:
     needs: job-two
     if: always() # Run even if job-two fails
     outputs:
-      result: ${{ steps.output-step.outputs.message }}
+      status: ${{ steps.output-step.outputs.result }}
     steps:
       - id: output-step
         run: |
-          # Set the message to true if you want to indicate success
-          echo "message=true"
+          echo "result==success" >> $GITHUB_ENV
