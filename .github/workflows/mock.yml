@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: job-two
     if: always() # Run even if job-two fails
-    continues-on-error: true
+    continue-on-error: true
     outputs:
       status: ${{ steps.output-step.outcome }}
     steps:
