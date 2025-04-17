@@ -16,6 +16,7 @@ jobs:
   job-two:
     runs-on: ubuntu-latest
     needs: job-one
+    continue-on-error: true
     steps:
       - name: This job always fails
         run: |
@@ -26,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: job-two
     if: always() # Run even if job-two fails
-    continue-on-error: true
     outputs:
       status: ${{ steps.output-step.outcome }}
     steps:
