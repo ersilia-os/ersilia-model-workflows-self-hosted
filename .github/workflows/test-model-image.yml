@@ -9,7 +9,7 @@ on:
     outputs:
       retag-success:
         description: "Whether retag-image succeeded"
-        value: ${{ jobs.retag-image.outputs.result }}
+        value: ${{ jobs.retag-image.outputs.status }}
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -19,6 +19,7 @@ on:
 jobs:
   test-image-amd64:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
@@ -76,6 +77,7 @@ jobs:
     runs-on: default-linux-arm64
     needs: test-image-amd64
     if: always()
+    continue-on-error: true
     steps:
       - name: print architecture
         run: |
@@ -138,7 +140,7 @@ jobs:
     needs: [test-image-amd64, test-image-arm64]
     if: always()
     outputs:
-      result: ${{ steps.retag-step.outcome == 'success' }}
+      status: ${{ steps.retag-step.outcome }}
     steps:
       - name: Check if AMD successful
         if: ${{ needs.test-image-amd64.result == 'success' }}
