@@ -2,7 +2,7 @@ name: Model test on PR
 
 on:
   workflow_call:
-      inputs:
+    inputs:
       branch:
         required: false
         type: string
