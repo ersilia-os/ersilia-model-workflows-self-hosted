@@ -27,6 +27,8 @@ jobs:
       - uses: actions/checkout@v4.2.2
         with:
           lfs: true
+          fetch-depth: 0  # Ensures full history
+          ref: ${{ inputs.branch }}
           
       - uses: conda-incubator/setup-miniconda@v3
         with:
