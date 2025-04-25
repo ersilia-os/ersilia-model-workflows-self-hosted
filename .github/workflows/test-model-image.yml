@@ -20,6 +20,8 @@ jobs:
   test-image-amd64:
     runs-on: ubuntu-latest
     continue-on-error: true
+    outputs:
+      passed: ${{ steps.check-result.outcome }}
     steps:
       - name: Set up conda
         uses: conda-incubator/setup-miniconda@v3
@@ -61,6 +63,7 @@ jobs:
           path: ${{ env.TEST_JSON_AMD64 }}
 
       - name: Parse test results
+        id: check-result
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
@@ -78,6 +81,8 @@ jobs:
     needs: test-image-amd64
     if: always()
     continue-on-error: true
+    outputs:
+      passed: ${{ steps.check-result.outcome }}
     steps:
       - name: print architecture
         run: |
@@ -123,6 +128,7 @@ jobs:
           path: ${{ env.TEST_JSON_ARM64 }}
 
       - name: Parse test results
+        id: check-result
         env:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
@@ -143,12 +149,12 @@ jobs:
       status: ${{ steps.retag-step.outcome }}
     steps:
       - name: Check if AMD successful
-        if: ${{ needs.test-image-amd64.result == 'success' }}
+        if: ${{ needs.test-image-amd64.outputs.passed == 'success' }}
         run: |
           echo "AMD64" > amd.txt
       
       - name: Check if ARM successful
-        if: ${{ needs.test-image-arm64.result == 'success' }}
+        if: ${{ needs.test-image-arm64.outputs.passed == 'success' }}
         run: |
           echo "ARM64" > arm.txt
       
