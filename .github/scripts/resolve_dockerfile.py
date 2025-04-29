@@ -42,7 +42,12 @@ def write_version_and_model_id(file_content, python_version):
     lines = file_content.split("\n")
     lines[0] = lines[0].replace("VERSION", python_version)
     with open(os.path.join(REPO_PATH, "../", "Dockerfile"), "w") as f:
-        f.write("\n".join(lines))
+        print("### START OF DOCKERFILE ###\n\n")
+        text = "\n".join(lines)
+        print(text)
+        print("\n")
+        print("### END OF DOCKERFILE ###\n")
+        f.write(text)
 
 if __name__ == "__main__":
     parser = resolve_parser()
