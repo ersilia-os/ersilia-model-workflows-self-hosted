@@ -188,6 +188,15 @@ jobs:
           "
           cat $MODEL_ID-test.json
 
+      - name: Upload test result for analysis
+        if: always()
+        uses: actions/upload-artifact@v4.5.0
+        with:
+          name: shallow_test
+          retention-days: 14
+          path: |
+            ${{ inputs.repo_name }}-test.json
+
       - name: Parse test results
         env:
           MODEL_ID: ${{ inputs.repo_name }}
@@ -223,5 +232,4 @@ jobs:
           name: model_sizes
           retention-days: 14
           path: |
-            ${{ inputs.repo_name }}-test.json
             model_sizes.txt
