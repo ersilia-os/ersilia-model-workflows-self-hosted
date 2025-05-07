@@ -104,13 +104,11 @@ new_order = [
     'Model Size',
     'Environment Size',
     'Image Size',
+    'Computational Performance 1',
+    'Computational Performance 2',
+    'Computational Performance 3',
     'Computational Performance 4',
-    'Computational Performance 7',
-    'Computational Performance 12',
-    'Computational Performance 20',
-    'Computational Performance 34',
-    'Computational Performance 58',
-    'Computational Performance 100'
+    'Computational Performance 5'
 ]
 
 if field not in new_order:
