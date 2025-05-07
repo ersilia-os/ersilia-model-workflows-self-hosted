@@ -174,14 +174,3 @@ jobs:
         run: |
           docker tag ersiliaos/${{ inputs.repo_name }}:dev-arm64 ersiliaos/${{ inputs.repo_name }}:dev
           docker push ersiliaos/${{ inputs.repo_name }}:dev
-
-      - name: Save pack method
-        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
-        run: echo "FastAPI" > pack_method.txt
-
-      - name: Upload pack method artifact
-        if: ${{ needs.build-ersilia-pack-image-amd64.result == 'success' || needs.build-ersilia-pack-image-arm64.result == 'success' }}
-        uses: actions/upload-artifact@v4.5.0
-        with:
-          name: pack-method
-          path: pack_method.txt

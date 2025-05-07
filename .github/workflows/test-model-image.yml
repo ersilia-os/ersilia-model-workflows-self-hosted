@@ -197,23 +197,6 @@ jobs:
           fi
           echo "$ARCH" > arch.txt
           cat arch.txt 
-      
-      - name: Download pack method
-        uses: actions/download-artifact@v4
-        with:
-          name: pack-method
-          path: .
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Read pack method
-        run: cat pack_method.txt
-
-      - name: Upload Artifact Pack Method
-        uses: actions/upload-artifact@v4.5.0
-        with:
-          name: pack-method
-          path: pack_method.txt
 
       - name: Upload Artifact Architecture
         uses: actions/upload-artifact@v4.5.0

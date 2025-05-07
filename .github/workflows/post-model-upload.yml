@@ -35,17 +35,6 @@ jobs:
           name: architecture
           path: .
 
-      - name: Download pack method file
-        uses: actions/download-artifact@v4
-        with:
-          name: pack-method
-          path: .
-      
-      - name: Print architecture and pack method
-        run: |
-          cat arch.txt
-          cat pack_method.txt
-
       - name: Download amd64 test results
         uses: actions/download-artifact@v4
         with:
@@ -94,7 +83,6 @@ jobs:
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Status" --content "Ready"
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "DockerHub" --content "https://hub.docker.com/r/ersiliaos/${MODEL_ID}"
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
-          python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Pack Method" --content pack_method.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Image Size" --content "$IMAGE_SIZE"
           for i in 4 7 12 20 34 58 100; do
             FIELD_NAME="Computational Performance ${i}"

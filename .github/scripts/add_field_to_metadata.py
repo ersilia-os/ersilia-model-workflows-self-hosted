@@ -97,7 +97,6 @@ new_order = [
     'S3',
     'DockerHub',
     'Docker Architecture',
-    'Docker Pack Method',
     'DO Deployment',
     'Biomodel Annotation',
     'Runtime',
