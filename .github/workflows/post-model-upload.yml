@@ -48,7 +48,7 @@ jobs:
           JSON_FILE="./${MODEL_ID}-test-amd64.json"  
           export IMAGE_SIZE=$(jq -r '.model_size_check.image_size_mb' $JSON_FILE)
           echo "IMAGE_SIZE=${IMAGE_SIZE}" >> $GITHUB_ENV
-          for i in 4 7 12 20 34 58 100; do
+          for i in 1 2 3 4 5; do
             VALUE=$(jq -r ".computational_performance_summary.computational_performance_tracking_details.pred_${i}" $JSON_FILE)
             export COMPUTATIONAL_PERFORMANCE_${i}="$VALUE"
             echo "COMPUTATIONAL_PERFORMANCE_${i}=${VALUE}" >> $GITHUB_ENV
@@ -65,13 +65,11 @@ jobs:
         env:
           MODEL_ID: ${{ github.event.repository.name }}
           IMAGE_SIZE: ${{ env.IMAGE_SIZE }}
+          COMPUTATIONAL_PERFORMANCE_1: ${{ env.COMPUTATIONAL_PERFORMANCE_1 }}
+          COMPUTATIONAL_PERFORMANCE_2: ${{ env.COMPUTATIONAL_PERFORMANCE_2 }}
+          COMPUTATIONAL_PERFORMANCE_3: ${{ env.COMPUTATIONAL_PERFORMANCE_3 }}
           COMPUTATIONAL_PERFORMANCE_4: ${{ env.COMPUTATIONAL_PERFORMANCE_4 }}
-          COMPUTATIONAL_PERFORMANCE_7: ${{ env.COMPUTATIONAL_PERFORMANCE_7 }}
-          COMPUTATIONAL_PERFORMANCE_12: ${{ env.COMPUTATIONAL_PERFORMANCE_12 }}
-          COMPUTATIONAL_PERFORMANCE_20: ${{ env.COMPUTATIONAL_PERFORMANCE_20 }}
-          COMPUTATIONAL_PERFORMANCE_34: ${{ env.COMPUTATIONAL_PERFORMANCE_34 }}
-          COMPUTATIONAL_PERFORMANCE_58: ${{ env.COMPUTATIONAL_PERFORMANCE_58 }}
-          COMPUTATIONAL_PERFORMANCE_100: ${{ env.COMPUTATIONAL_PERFORMANCE_100 }}
+          COMPUTATIONAL_PERFORMANCE_5: ${{ env.COMPUTATIONAL_PERFORMANCE_5 }}
         run: |
           if [[ -f metadata.yml ]]; then
             METADATA_FILE="metadata.yml"
@@ -84,7 +82,7 @@ jobs:
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "DockerHub" --content "https://hub.docker.com/r/ersiliaos/${MODEL_ID}"
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Docker Architecture" --content arch.txt
           python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "Image Size" --content "$IMAGE_SIZE"
-          for i in 4 7 12 20 34 58 100; do
+          for i in 1 2 3 4 5; do
             FIELD_NAME="Computational Performance ${i}"
             VALUE_VAR="COMPUTATIONAL_PERFORMANCE_${i}"
             python add_field_to_metadata.py --metadata_file "$METADATA_FILE" --field "$FIELD_NAME" --content "${!VALUE_VAR}"
@@ -98,9 +96,8 @@ jobs:
           MODEL_ID: ${{ inputs.repo_name }}
         run: |
             rm -rf architecture
-            rm -rf pack-method
             rm -rf test-report-amd64
-            rm -f arch.txt pack_method.txt "${MODEL_ID}-test-amd64.json"
+            rm -f arch.txt "${MODEL_ID}-test-amd64.json"
           
       - name: Commit and push changes done to the Metadata file
         uses: actions-js/push@master # pin@v1.4
