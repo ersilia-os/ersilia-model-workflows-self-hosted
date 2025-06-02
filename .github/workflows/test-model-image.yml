@@ -18,7 +18,7 @@ on:
 
 jobs:
   test-image-amd64:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     continue-on-error: true
     outputs:
       passed: ${{ steps.check-result.outcome }}
@@ -142,7 +142,7 @@ jobs:
           fi
       
   retag-image:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [test-image-amd64, test-image-arm64]
     if: always()
     outputs:

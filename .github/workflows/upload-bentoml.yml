@@ -17,7 +17,7 @@ on:
 
 jobs:
   build-bentoml-image-amd64:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
 
       - name: Checkout repository
@@ -169,7 +169,7 @@ jobs:
   
   merge-multiarch:
     needs: [build-bentoml-image-amd64, build-bentoml-image-arm64]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ needs.build-bentoml-image-amd64.result == 'success' || needs.build-bentoml-image-arm64.result == 'success' }}
     steps:
       - name: Login to Docker Hub
