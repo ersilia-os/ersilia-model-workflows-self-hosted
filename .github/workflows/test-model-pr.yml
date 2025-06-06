@@ -29,11 +29,14 @@ jobs:
           lfs: true
           fetch-depth: 0  # Ensures full history
           ref: ${{ inputs.branch }}
+
+      - name: Force legacy conda package format during bootstrap
+        run: echo "CONDA_PKGS_FORMAT=tar.bz2" >> $GITHUB_ENV
           
       - uses: conda-incubator/setup-miniconda@v3
         with:
+          auto-update-conda: true
           python-version: "3.12"
-          installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py312_24.1.2-0-Linux-x86_64.sh"
           auto-activate-base: false
 
       - name: Disable .conda archive format

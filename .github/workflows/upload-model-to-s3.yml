@@ -33,11 +33,14 @@ jobs:
         run: |
           git pull --rebase origin main
 
+      - name: Force legacy conda package format during bootstrap
+        run: echo "CONDA_PKGS_FORMAT=tar.bz2" >> $GITHUB_ENV
+
       - name: Setup Conda and Python
         uses: conda-incubator/setup-miniconda@v3
         with:
+          auto-update-conda: true
           python-version: "3.12"
-          installer-url: "https://repo.anaconda.com/miniconda/Miniconda3-py312_24.1.2-0-Linux-x86_64.sh"
           auto-activate-base: true
 
       - name: Disable .conda archive format
