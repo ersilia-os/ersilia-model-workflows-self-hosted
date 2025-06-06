@@ -32,8 +32,8 @@ jobs:
           
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: true
           python-version: "3.12"
+          miniconda-version: "py312_24.1.2-0"  # Known good release
           auto-activate-base: false
 
       - name: Disable .conda archive format

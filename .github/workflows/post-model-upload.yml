@@ -113,8 +113,8 @@ jobs:
         id: setupConda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: true
           python-version: "3.12"
+          miniconda-version: "py312_24.1.2-0"  # Known good release
 
       - name: Disable .conda archive format
         run: conda config --set use_only_tar_bz2 true
