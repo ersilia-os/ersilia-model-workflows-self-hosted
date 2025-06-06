@@ -115,6 +115,9 @@ jobs:
         with:
           auto-update-conda: true
           python-version: "3.12"
+
+      - name: Disable .conda archive format
+        run: conda config --set use_only_tar_bz2 true
   
       # Install ersilia
       - name: Install dependencies in Conda environment

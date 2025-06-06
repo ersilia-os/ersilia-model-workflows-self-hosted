@@ -42,6 +42,9 @@ jobs:
           python-version: "3.12"
           auto-activate-base: false
 
+      - name: Disable .conda archive format
+        run: conda config --set use_only_tar_bz2 true
+
       - name: Install dependencies
         run: |
           conda run -n base git-lfs install

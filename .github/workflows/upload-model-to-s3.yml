@@ -39,6 +39,9 @@ jobs:
           auto-update-conda: true
           python-version: "3.12"
           auto-activate-base: true
+
+      - name: Disable .conda archive format
+        run: conda config --set use_only_tar_bz2 true
       
       - name: Install dependencies
         run: |
